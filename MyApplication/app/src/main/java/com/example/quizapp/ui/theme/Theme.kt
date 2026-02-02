@@ -28,24 +28,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-/**
- * Farger for lyst tema.
- *
- * Disse fargene brukes når systemet er i lys modus
- * eller dynamiske farger ikke er tilgjengelig.
- */
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1976D2),           // Blå - hovedfarge
-    onPrimary = Color.White,               // Tekst på primærfarge
+    primary = Color(0xFF1976D2),           // Blå hovedfarge
+    onPrimary = Color.White,               // Tekst  primærfarge
     primaryContainer = Color(0xFFBBDEFB),  // Lyseblå container
     onPrimaryContainer = Color(0xFF004BA0), // Tekst på container
 
-    secondary = Color(0xFF7B1FA2),         // Lilla - sekundærfarge
+    secondary = Color(0xFF7B1FA2),         // Lilla
     onSecondary = Color.White,
     secondaryContainer = Color(0xFFE1BEE7),
     onSecondaryContainer = Color(0xFF4A0072),
 
-    tertiary = Color(0xFF00796B),          // Teal - tertiær
+    tertiary = Color(0xFF00796B),          // blå
     onTertiary = Color.White,
 
     error = Color(0xFFD32F2F),             // Rød for feil
@@ -54,7 +48,7 @@ private val LightColorScheme = lightColorScheme(
     background = Color(0xFFFAFAFA),        // Lys bakgrunn
     onBackground = Color(0xFF1C1B1F),      // Mørk tekst
 
-    surface = Color.White,                  // Overflate (kort, dialog)
+    surface = Color.White,                  // Overflate
     onSurface = Color(0xFF1C1B1F),
     surfaceVariant = Color(0xFFE7E0EC),
     onSurfaceVariant = Color(0xFF49454F)

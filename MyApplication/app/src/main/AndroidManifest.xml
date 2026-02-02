@@ -2,7 +2,7 @@
 <!--
     AndroidManifest.xml - Appens konfigurasjonsfil
 
-    Denne filen er obligatorisk for alle Android-apper og inneholder:
+    inneholder:
     - Appens identifikasjon og metadata
     - Tillatelser appen trenger
     - Alle aktiviteter (skjermer) i appen
