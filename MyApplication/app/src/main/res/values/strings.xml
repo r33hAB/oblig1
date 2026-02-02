@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
-    strings.xml - Alle tekster i appen
-
-    HVORFOR STRINGS.XML?
-    - Separerer tekst fra kode for enklere vedlikehold
-    - Gjør det enkelt å oversette appen til andre språk
-    - Android kan automatisk velge riktig språk basert på enhetens innstillinger
-
-    NAVNEKONVENSJON:
-    - Prefiks indikerer hvor teksten brukes (app_, knapp_, galleri_, quiz_, etc.)
-    - Beskrivende navn på engelsk for konsistens i kode
-    - Selve teksten er på norsk som ønsket
-
-    PARAMETERE:
+   // PARAMETERE:
     - %1$s = første string-parameter
     - %1$d = første integer-parameter
     - Eksempel: getString(R.string.bekreft_sletting_melding, navn)
--->
+    -->
 <resources>
     <!-- === APP-GENERELT === -->
     <!-- Appens navn som vises i launcher og tittellinjer -->
