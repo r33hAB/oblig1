@@ -1,0 +1,57 @@
+# .gitignore for Android-prosjekt
+#
+# Denne filen forteller Git hvilke filer og mapper som IKKE skal
+# spores i versjonskontrollen. Dette inkluderer:
+# - Genererte filer (byggeartifakter)
+# - IDE-spesifikke filer
+# - Lokale konfigurasjonsfiler
+# - Sensitiv informasjon
+
+# === GRADLE ===
+# Byggemapper og cache
+.gradle/
+build/
+**/build/
+
+# === ANDROID STUDIO / INTELLIJ ===
+# IDE konfigurasjonsfiler
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Lokal konfigurasjon (SDK-bane)
+local.properties
+
+# === GENERERTE FILER ===
+*.class
+*.jar
+*.apk
+*.aab
+*.dex
+
+# === NATIVE BUILDS ===
+.externalNativeBuild/
+.cxx/
+
+# === LOGGER OG MIDLERTIDIGE FILER ===
+*.log
+*.tmp
+*.swp
+
+# === MACOS ===
+.DS_Store
+
+# === WINDOWS ===
+Thumbs.db
+
+# === TEST OG CAPTURE ===
+/captures/
+
+# === SIGNING ===
+*.jks
+*.keystore
+signing.properties

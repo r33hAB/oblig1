@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    themes.xml - Tema for XML-baserte layouts
+
+    Denne filen definerer temaet som brukes av hovedmenyen (activity_main.xml).
+    Compose-skjermene har sitt eget tema definert i Theme.kt.
+
+    DESIGNVALG:
+    - Material 3 (Material You) som basis for moderne utseende
+    - NoActionBar fordi vi bruker egne TopAppBar i Compose
+    - Tilpassede farger for konsistens med Compose-temaet
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Basis-tema som alle andre temaer arver fra.
+        DayNight gir automatisk støtte for lys og mørk modus.
+    -->
+    <style name="Base.Theme.QuizApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primærfarge - brukes for knapper, lenker, etc. -->
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+
+        <!-- Sekundærfarge -->
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+
+        <!-- Bakgrunns- og overflatefarger -->
+        <item name="android:colorBackground">@color/md_theme_background</item>
+        <item name="colorOnBackground">@color/md_theme_onBackground</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+    </style>
+
+    <!-- Hovedtemaet som brukes i AndroidManifest.xml -->
+    <style name="Theme.QuizApp" parent="Base.Theme.QuizApp" />
+
+    <!-- Material Design farger for lyst tema -->
+    <color name="md_theme_primary">#1976D2</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#BBDEFB</color>
+    <color name="md_theme_onPrimaryContainer">#004BA0</color>
+    <color name="md_theme_secondary">#7B1FA2</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_background">#FAFAFA</color>
+    <color name="md_theme_onBackground">#1C1B1F</color>
+    <color name="md_theme_surface">#FFFFFF</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+</resources>

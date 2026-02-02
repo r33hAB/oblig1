@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    colors.xml - Fargedefinisjoner for XML-layouts
+
+    Disse fargene brukes primært i activity_main.xml (hovedmenyen).
+    Compose-skjermene bruker fargene definert i Theme.kt.
+
+    NAVNEKONVENSJON:
+    - Beskrivende navn på norsk for konsistens med resten av prosjektet
+    - Inkluderer alpha-verdi (FF = 100% dekning) for klarhet
+-->
+<resources>
+    <!-- Grunnfarger -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Bakgrunnsfarger for XML-layouts -->
+    <!-- Lys, nøytral bakgrunn som ikke distraherer -->
+    <color name="bakgrunnsfarge">#FFFAFAFA</color>
+
+    <!-- Tekstfarger -->
+    <!-- Primær tekstfarge - mørk for god lesbarhet -->
+    <color name="tekstfarge">#FF1C1B1F</color>
+
+    <!-- Sekundær tekstfarge - lysere for mindre viktig tekst -->
+    <color name="tekstfarge_sekundar">#FF49454F</color>
+</resources>

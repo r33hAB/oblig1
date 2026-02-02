@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    dyr2.xml - Vektor-drawable av en hund
+
+    Dette er et forhåndslastet bilde som vises i galleriet ved oppstart.
+    Bildet er en enkel illustrasjon av en hund.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Bakgrunn -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M0,0h200v200h-200z" />
+
+    <!-- Hundens kropp -->
+    <path
+        android:fillColor="#8D6E63"
+        android:pathData="M100,185 C55,185 35,145 35,110 C35,75 55,55 100,55 C145,55 165,75 165,110 C165,145 145,185 100,185" />
+
+    <!-- Hundens hode -->
+    <path
+        android:fillColor="#8D6E63"
+        android:pathData="M100,80 C70,80 50,55 50,35 C50,15 70,5 100,5 C130,5 150,15 150,35 C150,55 130,80 100,80" />
+
+    <!-- Venstre øre (hengende) -->
+    <path
+        android:fillColor="#6D4C41"
+        android:pathData="M50,25 Q30,35 35,65 Q45,55 55,40 Q55,30 50,25" />
+
+    <!-- Høyre øre (hengende) -->
+    <path
+        android:fillColor="#6D4C41"
+        android:pathData="M150,25 Q170,35 165,65 Q155,55 145,40 Q145,30 150,25" />
+
+    <!-- Snute -->
+    <path
+        android:fillColor="#A1887F"
+        android:pathData="M100,75 C85,75 75,65 75,55 L75,50 C75,45 85,40 100,40 C115,40 125,45 125,50 L125,55 C125,65 115,75 100,75" />
+
+    <!-- Venstre øye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,32 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+
+    <!-- Høyre øye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M105,32 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+
+    <!-- Venstre pupill -->
+    <path
+        android:fillColor="#4E342E"
+        android:pathData="M80,32 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+
+    <!-- Høyre pupill -->
+    <path
+        android:fillColor="#4E342E"
+        android:pathData="M110,32 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+
+    <!-- Venstre øye glint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M82,29 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- Høyre øye glint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M112,29 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- Nese -->
+    <path
+        android:fillColor="#4E342E"
+        android:pathData="M90,52 Q100,45 110,52 Q105,58 100,60 Q95,58 90,52" />
+
+    <!-- Tunge -->
+    <path
+        android:fillColor="#EF9A9A"
+        android:pathData="M95,65 Q100,75 105,65 Q100,62 95,65" />
+
+    <!-- Hale -->
+    <path
+        android:fillColor="#8D6E63"
+        android:pathData="M155,140 Q175,120 170,95 Q165,100 160,110 Q158,125 155,140" />
+
+    <!-- Venstre forben -->
+    <path
+        android:fillColor="#6D4C41"
+        android:pathData="M70,150 L65,190 L80,190 L85,150 Z" />
+
+    <!-- Høyre forben -->
+    <path
+        android:fillColor="#6D4C41"
+        android:pathData="M115,150 L120,190 L135,190 L130,150 Z" />
+
+</vector>

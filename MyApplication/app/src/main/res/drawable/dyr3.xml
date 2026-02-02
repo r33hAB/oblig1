@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    dyr3.xml - Vektor-drawable av en kanin
+
+    Dette er et forhåndslastet bilde som vises i galleriet ved oppstart.
+    Bildet er en enkel illustrasjon av en kanin.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Bakgrunn -->
+    <path
+        android:fillColor="#C8E6C9"
+        android:pathData="M0,0h200v200h-200z" />
+
+    <!-- Kaninens kropp -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M100,190 C60,190 40,155 40,120 C40,85 60,65 100,65 C140,65 160,85 160,120 C160,155 140,190 100,190" />
+
+    <!-- Kaninens hode -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M100,95 C70,95 55,70 55,50 C55,30 70,15 100,15 C130,15 145,30 145,50 C145,70 130,95 100,95" />
+
+    <!-- Venstre øre -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M70,30 Q60,-10 75,-30 Q85,-15 85,15 Q80,25 70,30" />
+
+    <!-- Høyre øre -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M130,30 Q140,-10 125,-30 Q115,-15 115,15 Q120,25 130,30" />
+
+    <!-- Indre venstre øre -->
+    <path
+        android:fillColor="#FFCDD2"
+        android:pathData="M73,25 Q65,-5 77,-20 Q83,-10 82,12 Q78,20 73,25" />
+
+    <!-- Indre høyre øre -->
+    <path
+        android:fillColor="#FFCDD2"
+        android:pathData="M127,25 Q135,-5 123,-20 Q117,-10 118,12 Q122,20 127,25" />
+
+    <!-- Venstre øye -->
+    <path
+        android:fillColor="#F8BBD9"
+        android:pathData="M78,45 a8,10 0 1,0 16,0 a8,10 0 1,0 -16,0" />
+
+    <!-- Høyre øye -->
+    <path
+        android:fillColor="#F8BBD9"
+        android:pathData="M106,45 a8,10 0 1,0 16,0 a8,10 0 1,0 -16,0" />
+
+    <!-- Venstre pupill -->
+    <path
+        android:fillColor="#880E4F"
+        android:pathData="M83,45 a4,6 0 1,0 8,0 a4,6 0 1,0 -8,0" />
+
+    <!-- Høyre pupill -->
+    <path
+        android:fillColor="#880E4F"
+        android:pathData="M111,45 a4,6 0 1,0 8,0 a4,6 0 1,0 -8,0" />
+
+    <!-- Venstre øye glint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M84,42 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- Høyre øye glint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M112,42 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- Nese -->
+    <path
+        android:fillColor="#FFCDD2"
+        android:pathData="M95,62 Q100,58 105,62 Q105,68 100,70 Q95,68 95,62" />
+
+    <!-- Munn linje venstre -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="2"
+        android:pathData="M100,70 Q90,78 80,72" />
+
+    <!-- Munn linje høyre -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="2"
+        android:pathData="M100,70 Q110,78 120,72" />
+
+    <!-- Tenner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1"
+        android:pathData="M95,72 L95,82 L100,82 L100,72 M100,72 L100,82 L105,82 L105,72" />
+
+    <!-- Værhår venstre -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1.5"
+        android:pathData="M60,58 L78,62 M58,65 L78,65 M60,72 L78,68" />
+
+    <!-- Værhår høyre -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1.5"
+        android:pathData="M140,58 L122,62 M142,65 L122,65 M140,72 L122,68" />
+
+    <!-- Hale (liten dott) -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M155,150 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+
+</vector>

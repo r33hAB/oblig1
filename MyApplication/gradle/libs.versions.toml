@@ -1,0 +1,72 @@
+# libs.versions.toml - Sentralisert versjonshåndtering for Gradle
+#
+# Denne filen definerer alle versjoner av biblioteker og plugins som brukes i prosjektet.
+# Ved å samle alle versjoner her, blir det enklere å holde avhengigheter oppdatert
+# og sikre konsistens på tvers av moduler.
+
+[versions]
+# Android Gradle Plugin versjon
+agp = "8.7.3"
+
+# Kotlin versjon - må matche Compose-kompilator
+kotlin = "2.0.21"
+
+# AndroidX Core biblioteker
+coreKtx = "1.15.0"
+
+# Testing-biblioteker
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+
+# UI-biblioteker
+appcompat = "1.7.0"
+material = "1.12.0"
+activity = "1.9.3"
+constraintlayout = "2.2.0"
+
+# Jetpack Compose - moderne UI-rammeverk for Android
+composeBom = "2024.12.01"
+activityCompose = "1.9.3"
+
+# Coil - bildehåndtering for Compose
+coil = "2.7.0"
+
+[libraries]
+# AndroidX Core
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+# UI - Tradisjonelle Views
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+# Jetpack Compose - BOM (Bill of Materials) for konsistente versjoner
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+# Compose UI-komponenter
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+# Coil for bildehåndtering i Compose
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+[plugins]
+# Android Application plugin
+android-application = { id = "com.android.application", version.ref = "agp" }
+
+# Kotlin plugins
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+# Compose Compiler plugin (ny måte fra Kotlin 2.0)
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

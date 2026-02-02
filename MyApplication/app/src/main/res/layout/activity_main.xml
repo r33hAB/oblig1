@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_main.xml - XML-layout for hovedmenyen
+
+    STRUKTUR:
+    - ConstraintLayout som rot-container
+    - Tittel øverst
+    - To knapper sentrert vertikalt
+
+    DESIGNVALG:
+    - ConstraintLayout brukes fordi det er moderne og fleksibelt
+    - Knappene er sentrert både horisontalt og vertikalt
+    - Material Design-komponenter for konsistent utseende
+    - Norske tekster definert i strings.xml for enkel oversetting
+
+    CONSTRAINT-FORKLARING:
+    - layout_constraintTop_toTopOf="parent" - toppen er festet til toppen av forelder
+    - layout_constraintStart_toStartOf="parent" - venstre kant festet til venstre kant av forelder
+    - layout_constraintEnd_toEndOf="parent" - høyre kant festet til høyre kant av forelder
+    - Når både Start og End er festet, blir elementet sentrert horisontalt
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bakgrunnsfarge"
+    tools:context=".MainActivity">
+
+    <!--
+        Tittel for appen
+        - Plassert øverst med margin
+        - Stor tekststørrelse for synlighet
+        - Tekst hentet fra strings.xml
+    -->
+    <TextView
+        android:id="@+id/tittel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_tittel"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/tekstfarge"
+        android:layout_marginTop="48dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!--
+        Undertittel/beskrivelse
+        - Plassert under hovedtittelen
+        - Mindre tekst for sekundær informasjon
+    -->
+    <TextView
+        android:id="@+id/undertittel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_beskrivelse"
+        android:textSize="16sp"
+        android:textColor="@color/tekstfarge_sekundar"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tittel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!--
+        Galleri-knappen
+        - Material Design Button for konsistent utseende
+        - Sentrert horisontalt
+        - Plassert over midten av skjermen
+        - Minimum bredde for god klikkbarhet
+    -->
+    <Button
+        android:id="@+id/knappGalleri"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:text="@string/knapp_galleri"
+        android:textSize="18sp"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
+
+    <!--
+        Quiz-knappen
+        - Plassert under galleri-knappen
+        - Samme størrelse for konsistens
+        - Annen stil (Filled) for å skille den visuelt
+    -->
+    <Button
+        android:id="@+id/knappQuiz"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:text="@string/knapp_quiz"
+        android:textSize="18sp"
+        style="@style/Widget.Material3.Button"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/knappGalleri"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!--
+        Versjonsinformasjon i bunnen
+        - Viser app-versjon for debugging
+        - Liten tekst i lysere farge
+    -->
+    <TextView
+        android:id="@+id/versjon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_versjon"
+        android:textSize="12sp"
+        android:textColor="@color/tekstfarge_sekundar"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    strings.xml - Alle tekster i appen
+
+    HVORFOR STRINGS.XML?
+    - Separerer tekst fra kode for enklere vedlikehold
+    - Gjør det enkelt å oversette appen til andre språk
+    - Android kan automatisk velge riktig språk basert på enhetens innstillinger
+
+    NAVNEKONVENSJON:
+    - Prefiks indikerer hvor teksten brukes (app_, knapp_, galleri_, quiz_, etc.)
+    - Beskrivende navn på engelsk for konsistens i kode
+    - Selve teksten er på norsk som ønsket
+
+    PARAMETERE:
+    - %1$s = første string-parameter
+    - %1$d = første integer-parameter
+    - Eksempel: getString(R.string.bekreft_sletting_melding, navn)
+-->
+<resources>
+    <!-- === APP-GENERELT === -->
+    <!-- Appens navn som vises i launcher og tittellinjer -->
+    <string name="app_name">Quiz App</string>
+
+    <!-- Tittel som vises på hovedmenyen -->
+    <string name="app_tittel">Quiz Spill</string>
+
+    <!-- Kort beskrivelse av appen -->
+    <string name="app_beskrivelse">Gjett navn på bilder!</string>
+
+    <!-- Versjonsinformasjon -->
+    <string name="app_versjon">Versjon 1.0 - Oblig 1</string>
+
+    <!-- === NAVIGASJON === -->
+    <!-- Knapper i hovedmenyen -->
+    <string name="knapp_galleri">Galleri</string>
+    <string name="knapp_quiz">Start Quiz</string>
+
+    <!-- Tilbake-knapp (for tilgjengelighet) -->
+    <string name="tilbake">Gå tilbake</string>
+
+    <!-- === GALLERI === -->
+    <!-- Tittel for galleri-skjermen -->
+    <string name="galleri_tittel">Bildegalleri</string>
+
+    <!-- Sorteringsalternativer -->
+    <string name="sorter">Sorter</string>
+    <string name="sorter_a_aa">Sorter A-Å</string>
+    <string name="sorter_aa_a">Sorter Å-A</string>
+
+    <!-- Legg til / fjern bilder -->
+    <string name="legg_til">Legg til bilde</string>
+    <string name="slett">Slett</string>
+
+    <!-- Dialog for å legge til navn -->
+    <string name="legg_til_navn_tittel">Gi bildet et navn</string>
+    <string name="navn_hint">Skriv inn navn</string>
+    <string name="bekreft">Bekreft</string>
+    <string name="avbryt">Avbryt</string>
+
+    <!-- Bekreftelse før sletting -->
+    <string name="bekreft_sletting_tittel">Slett bilde?</string>
+    <!-- %1$s erstattes med navnet på bildet -->
+    <string name="bekreft_sletting_melding">Er du sikker på at du vil slette \"%1$s\"?</string>
+
+    <!-- Melding når galleriet er tomt -->
+    <string name="tomt_galleri">Galleriet er tomt.\nTrykk + for å legge til bilder.</string>
+
+    <!-- === QUIZ === -->
+    <!-- Tittel for quiz-skjermen -->
+    <string name="quiz_tittel">Quiz</string>
+
+    <!-- Spørsmålstekst -->
+    <string name="quiz_sporsmal">Hva heter dette?</string>
+
+    <!-- Tilgjengelighet for bilde -->
+    <string name="quiz_bilde_beskrivelse">Bilde du skal gjette navnet på</string>
+
+    <!-- Resultat-meldinger -->
+    <string name="svar_riktig">Riktig!</string>
+    <string name="svar_feil">Feil!</string>
+
+    <!-- Viser riktig svar når brukeren svarer feil -->
+    <!-- %1$s erstattes med det korrekte navnet -->
+    <string name="riktig_svar_var">Riktig svar var: %1$s</string>
+
+    <!-- Viser hva brukeren svarte -->
+    <string name="du_svarte">Du svarte: %1$s</string>
+
+    <!-- Knapp for å gå til neste spørsmål -->
+    <string name="neste_sporsmal">Neste spørsmål</string>
+
+    <!-- Score-visning -->
+    <string name="score_riktige">Riktige</string>
+    <string name="score_totalt">Totalt</string>
+    <string name="score_prosent">Prosent</string>
+
+    <!-- Feilmelding når det er for få bilder -->
+    <string name="for_faa_bilder_tittel">For få bilder!</string>
+    <string name="for_faa_bilder_melding">Du trenger minst 3 bilder i galleriet for å spille quiz. Gå til galleriet og legg til flere bilder.</string>
+    <string name="gaa_til_galleri">Gå til galleri</string>
+</resources>

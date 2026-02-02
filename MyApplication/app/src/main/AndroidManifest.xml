@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AndroidManifest.xml - Appens konfigurasjonsfil
+
+    Denne filen er obligatorisk for alle Android-apper og inneholder:
+    - Appens identifikasjon og metadata
+    - Tillatelser appen trenger
+    - Alle aktiviteter (skjermer) i appen
+    - Hvilken aktivitet som er oppstartspunktet
+
+    VIKTIGE ELEMENTER:
+    - android:name på application: Peker til vår QuizApplication-klasse
+    - intent-filter med MAIN/LAUNCHER: Gjør MainActivity til startskjermen
+    - exported="true": Nødvendig for launcher-aktiviteten
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:name=".QuizApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.QuizApp"
+        tools:targetApi="31">
+
+        <!--
+            MainActivity - Hovedmenyen
+            - exported="true" er påkrevd for å kunne starte fra launcher
+            - intent-filter definerer dette som appens startpunkt
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <!-- MAIN = denne aktiviteten er et hovedinngangspunkt -->
+                <action android:name="android.intent.action.MAIN" />
+                <!-- LAUNCHER = vis i app-launcher -->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            GalleriActivity - Bildegalleri
+            - exported="false" fordi den kun startes internt fra MainActivity
+            - parentActivityName brukes for å definere tilbake-navigasjon
+        -->
+        <activity
+            android:name=".GalleriActivity"
+            android:exported="false"
+            android:label="@string/galleri_tittel"
+            android:parentActivityName=".MainActivity" />
+
+        <!--
+            QuizActivity - Quiz-spillet
+            - Samme oppsett som GalleriActivity
+        -->
+        <activity
+            android:name=".QuizActivity"
+            android:exported="false"
+            android:label="@string/quiz_tittel"
+            android:parentActivityName=".MainActivity" />
+
+    </application>
+
+</manifest>
