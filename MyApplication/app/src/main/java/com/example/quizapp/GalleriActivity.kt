@@ -85,9 +85,6 @@ class GalleriActivity : ComponentActivity() {
     // TODO: Implementer oppdaterBildeliste()
     // Hint: bildeOppforinger = quizApp.bildeOppforinger.toList()
 
-    /**
-     * Placeholder - erstatt med faktisk implementasjon
-     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun PlaceholderSkjerm() {

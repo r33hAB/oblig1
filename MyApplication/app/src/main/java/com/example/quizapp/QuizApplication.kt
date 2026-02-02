@@ -1,16 +1,27 @@
 /**
  * QuizApplication.kt - Application-klassen for Quiz-appen
  *
- * TODO: Implementer denne klassen!
+ * Application-klassen er en singleton som lever gjennom hele appens livssyklus.
+ * Den opprettes før noen Activity starter og overlever konfigurasjon-endringer
+ * som skjermrotasjon.
  *
- * Denne klassen skal:
- * - Holde en liste over alle bilde-oppføringer (MutableList<BildeOppforing>)
- * - Laste inn innebygde bilder ved oppstart (onCreate)
- * - Gi metoder for å legge til, fjerne og sortere oppføringer
- * - Gi metoder for quiz-funksjonalitet (hent tilfeldig, hent feil svar)
+ * HVORFOR APPLICATION-KLASSEN?
+ * - Oppgaven krever at vi bruker Application-klassen for å dele data mellom Activities
+ * - Dette er en enkel måte å ha "global" tilstand uten å bruke en database
+ * - Alternativet ville vært å bruke ViewModel med SavedStateHandle, men
+ *   Application-klassen er enklere for denne oppgaven
  *
- * - Bruk mutableListOf() for å lage listen
- * - Uri.parse() for å bygge URIer til ressurser
+ * VIKTIG BEGRENSNING:
+ * - Data lagres kun i minnet (RAM)
+ * - Når appen avsluttes helt (ikke bare bakgrunn), mister vi bruker-tillagte bilder
+ * - Innebygde bilder lastes inn på nytt ved oppstart
+ * - Persistent lagring kommer i neste oblig
+ *
+ * COLLECTIONS-VALG:
+ * - Vi bruker MutableList<BildeOppforing> som datastruktur
+ * - ArrayList er standard implementasjon og gir O(1) tilgang via indeks
+ * - Sortering gjøres med sortBy/sortByDescending som er O(n log n)
+ * - Dette er tilstrekkelig for et lite galleri med noen titalls bilder
  */
 
 package com.example.quizapp
@@ -19,79 +30,83 @@ import android.app.Application
 import android.net.Uri
 import com.example.quizapp.data.BildeOppforing
 
+
 class QuizApplication : Application() {
 
-    // TODO: Opprett en MutableList for å holde alle bilde-oppføringer
+
     val bildeOppforinger: MutableList<BildeOppforing> = mutableListOf()
 
-    // TODO: Opprett en teller for å generere unike IDer (start på 1000)
+
     private var nesteId: Long = 1000
+
 
     override fun onCreate() {
         super.onCreate()
-        // TODO: Last inn innebygde bilder her
-        //  Bruk R.drawable.dyr1, dyr2, dyr3
-        // URI-format: "android.resource://${packageName}/${ressursId}"
+        lastInnebygdeBilder()
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal legge til en ny bilde-oppføring i galleriet
-     */
+
+    private fun lastInnebygdeBilder() {
+        // Liste over innebygde bilder med navn og ressurs-ID
+        val innebygdeBilder = listOf(
+            Pair("Katt", R.drawable.dyr1),
+            Pair("Hund", R.drawable.dyr2),
+            Pair("Kanin", R.drawable.dyr3)
+        )
+
+        // Konverter hver ressurs til en BildeOppforing
+        innebygdeBilder.forEachIndexed { index, (navn, ressursId) ->
+            // Formatet er: android.resource://com.example.quizapp/drawable/dyr1
+            val uri = Uri.parse(
+                "android.resource://${packageName}/${ressursId}"
+            )
+
+            // Opprett oppføringen med erInnebygd = true
+            val oppforing = BildeOppforing(
+                id = (index + 1).toLong(),  // IDer 1, 2, 3 for innebygde
+                navn = navn,
+                bildeUri = uri,
+                erInnebygd = true
+            )
+
+            bildeOppforinger.add(oppforing)
+        }
+    }
+
     fun leggTilOppforing(navn: String, bildeUri: Uri): BildeOppforing {
-        // TODO: Opprett en ny BildeOppforing med unik ID
-        // TODO: Legg den til i listen
-        // TODO: Returner oppføringen
-        TODO("Implementer leggTilOppforing")
+        val oppforing = BildeOppforing(
+            id = nesteId++,
+            navn = navn,
+            bildeUri = bildeUri,
+            erInnebygd = false
+        )
+        bildeOppforinger.add(oppforing)
+        return oppforing
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal fjerne en oppføring basert på ID
-     */
     fun fjernOppforing(id: Long): Boolean {
-        // TODO: Fjern oppføringen med gitt ID fra listen
-        // Bruk removeIf { }
-        TODO("Implementer fjernOppforing")
+        return bildeOppforinger.removeIf { it.id == id }
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal sortere galleriet alfabetisk (A-Å)
-     */
     fun sorterAlfabetisk() {
-        // TODO: Sorter listen alfabetisk på navn
-        // Bruk sortBy { }
-        TODO("Implementer sorterAlfabetisk")
+        bildeOppforinger.sortBy { it.navn.lowercase() }
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal sortere galleriet i omvendt alfabetisk rekkefølge (Å-A)
-     */
+
     fun sorterOmvendtAlfabetisk() {
-        // TODO: Sorter listen i omvendt alfabetisk rekkefølge
-        // Bruk sortByDescending { }
-        TODO("Implementer sorterOmvendtAlfabetisk")
+        bildeOppforinger.sortByDescending { it.navn.lowercase() }
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal returnere en tilfeldig oppføring for quiz
-     */
     fun hentTilfeldigOppforing(): BildeOppforing? {
-        // TODO: Returner en tilfeldig oppføring fra listen
-        //Bruk randomOrNull()
-        TODO("Implementer hentTilfeldigOppforing")
+        return bildeOppforinger.randomOrNull()
     }
 
-    /**
-     * TODO: Implementer denne metoden
-     * Skal returnere feil svar for quiz (navn fra andre bilder)
-     */
-    fun hentFeilSvar(riktigId: Long, antall: Int): List<String> {
-        // TODO: Returner 'antall' tilfeldige navn som IKKE er det riktige svaret
 
-        TODO("Implementer hentFeilSvar")
+    fun hentFeilSvar(riktigId: Long, antall: Int): List<String> {
+        return bildeOppforinger
+            .filter { it.id != riktigId }  // Ekskluder riktig svar
+            .shuffled()                     // Bland tilfeldig
+            .take(antall)                   // Ta ønsket antall
+            .map { it.navn }               // Hent bare navnene
     }
 }

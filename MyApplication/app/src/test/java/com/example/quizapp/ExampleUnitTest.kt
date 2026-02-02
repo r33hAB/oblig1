@@ -23,10 +23,6 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
 
-    /**
-     * Verifiserer at grunnleggende aritmetikk fungerer.
-     * Dette er en placeholder-test som bør erstattes med faktiske tester.
-     */
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)

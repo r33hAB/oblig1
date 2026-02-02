@@ -1,19 +1,25 @@
 /**
  * QuizActivity.kt - Quiz-spillet med Jetpack Compose
  *
- * TODO: Implementer denne aktiviteten!
+ * Denne aktiviteten implementerer quiz-spillet hvor brukeren skal
+ * gjette hvilket navn som hører til et tilfeldig valgt bilde.
  *
- * Denne aktiviteten skal:
- * - Vise et tilfeldig bilde fra galleriet
- * - Vise 3 svaralternativer (1 riktig + 2 feil)
- * - Gi tilbakemelding på om svaret var riktig/feil
- * - Holde styr på score (riktige/totalt/prosent)
- * - Håndtere edge case når det er for få bilder
+ * SPILLFLYT:
+ * 1. Et tilfeldig bilde velges fra galleriet
+ * 2. Tre svaralternativer vises (1 riktig + 2 feil)
+ * 3. Brukeren velger et svar
+ * 4. Tilbakemelding vises (riktig/feil + evt. riktig svar)
+ * 5. Brukeren klikker "Neste" for nytt spørsmål
+ * 6. Score oppdateres kontinuerlig
  *
- * TIPS:
- * - Se solutions/QuizActivity.kt for fullstendig løsning
- * - Bruk sealed class for å representere quiz-tilstander
- * - Bruk when() for å vise riktig UI basert på tilstand
+ * DESIGNVALG:
+ * - State machine pattern: QuizTilstand representerer de ulike tilstandene
+ * - shuffled() brukes for tilfeldig rekkefølge på svaralternativer
+ * - Animerte overganger for bedre brukeropplevelse
+ *
+ * EDGE CASES:
+ * - Hvis galleriet har færre enn 3 bilder, vises en feilmelding
+ * - Quiz krever minst 3 bilder for å ha meningsfulle feil-svar
  */
 
 package com.example.quizapp
@@ -44,27 +50,41 @@ import coil.request.ImageRequest
 import com.example.quizapp.data.BildeOppforing
 import com.example.quizapp.ui.theme.QuizAppTheme
 
-/**
- * TODO: Implementer sealed class for quiz-tilstander
- *
- * Eksempel:
- * sealed class QuizTilstand {
- *     data class VenterPaaSvar(val gjeldendeBilde: BildeOppforing, val svaralternativer: List<String>) : QuizTilstand()
- *     data class SvarGitt(val gjeldendeBilde: BildeOppforing, val valgtSvar: String, val riktigSvar: String, val erRiktig: Boolean) : QuizTilstand()
- *     data object ForFaaBilder : QuizTilstand()
- * }
- */
+sealed class QuizTilstand {
+    data class VenterPaaSvar(
+        val gjeldendeBilde: BildeOppforing,
+        val svaralternativer: List<String>
+    ) : QuizTilstand()
+
+    data class SvarGitt(
+        val gjeldendeBilde: BildeOppforing,
+        val valgtSvar: String,
+        val riktigSvar: String,
+        val erRiktig: Boolean
+    ) : QuizTilstand()
+
+    data object ForFaaBilder : QuizTilstand()
+}
+
 
 class QuizActivity : ComponentActivity() {
 
+
     private lateinit var quizApp: QuizApplication
 
-    // TODO: Opprett state for quiz-tilstand
-    //private var tilstand by mutableStateOf<QuizTilstand>(QuizTilstand.ForFaaBilder)
+    private var tilstand by mutableStateOf<QuizTilstand>(QuizTilstand.ForFaaBilder)
 
-    // TODO: Opprett states for score
-    //antallRiktige, antallTotalt
+    private var antallRiktige by mutableStateOf(0)
 
+    /**
+     * Totalt antall spørsmål besvart i denne sesjonen.
+     */
+    private var antallTotalt by mutableStateOf(0)
+
+    /**
+     * Minimum antall bilder som kreves for å spille quiz.
+     * Vi trenger minst 3 for å ha 1 riktig og 2 feil svar.
+     */
     companion object {
         const val MINIMUM_BILDER = 3
         const val ANTALL_FEIL_SVAR = 2
@@ -73,36 +93,75 @@ class QuizActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Hent referanse til Application-klassen
         quizApp = applicationContext as QuizApplication
 
-        // TODO: Last første spørsmål
+        // Start quizen med første spørsmål
+        lastNyttSporsmal()
 
+        // Sett Compose-innhold
         setContent {
             QuizAppTheme {
-                // TODO: Erstatt dette med QuizSkjerm()
-                PlaceholderSkjerm()
+                QuizSkjerm()
             }
         }
     }
 
-    // TODO: Implementer lastNyttSporsmal()
-    // 1. Sjekk om det er nok bilder (minimum 3)
-    // 2. Velg tilfeldig bilde
-    // 3. Hent feil svar
-    // 4. Bland alle svar
-    // 5. Oppdater tilstand
+    private fun lastNyttSporsmal() {
+        // Sjekk at vi har nok bilder
+        if (quizApp.bildeOppforinger.size < MINIMUM_BILDER) {
+            tilstand = QuizTilstand.ForFaaBilder
+            return
+        }
 
-    // TODO: Implementer behandleSvar(valgtSvar: String)
-    // 1. Sjekk om svaret er riktig
-    // 2. Oppdater statistikk
-    // 3. Oppdater tilstand til SvarGitt
+        // Velg tilfeldig bilde
+        val riktigBilde = quizApp.hentTilfeldigOppforing()!!
+
+        // Hent feil svar (navn fra andre bilder)
+        val feilSvar = quizApp.hentFeilSvar(riktigBilde.id, ANTALL_FEIL_SVAR)
+
+        // Kombiner riktig og feil svar, og bland dem
+        val alleSvar = (listOf(riktigBilde.navn) + feilSvar).shuffled()
+
+        // Oppdater tilstand til å vente på svar
+        tilstand = QuizTilstand.VenterPaaSvar(
+            gjeldendeBilde = riktigBilde,
+            svaralternativer = alleSvar
+        )
+    }
 
     /**
-     * Placeholder - erstatt med faktisk implementasjon
+     * Håndterer når brukeren velger et svar.
+     *
+     * @param valgtSvar Svaret brukeren klikket på
+     */
+    private fun behandleSvar(valgtSvar: String) {
+        val gjeldendeTilstand = tilstand as? QuizTilstand.VenterPaaSvar ?: return
+
+        val riktigSvar = gjeldendeTilstand.gjeldendeBilde.navn
+        val erRiktig = valgtSvar == riktigSvar
+
+        // Oppdater statistikk
+        antallTotalt++
+        if (erRiktig) {
+            antallRiktige++
+        }
+
+        // Oppdater tilstand til å vise resultat
+        tilstand = QuizTilstand.SvarGitt(
+            gjeldendeBilde = gjeldendeTilstand.gjeldendeBilde,
+            valgtSvar = valgtSvar,
+            riktigSvar = riktigSvar,
+            erRiktig = erRiktig
+        )
+    }
+
+    /**
+     * Hovedskjermen for quizen.
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun PlaceholderSkjerm() {
+    fun QuizSkjerm() {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -118,40 +177,252 @@ class QuizActivity : ComponentActivity() {
                 )
             }
         ) { paddingVerdier ->
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingVerdier),
-                contentAlignment = Alignment.Center
+                    .padding(paddingVerdier)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "TODO: Implementer quiz-spillet",
-                    textAlign = TextAlign.Center
-                )
+                // Score-visning
+                ScoreVisning()
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Hovedinnhold basert på tilstand
+                when (val t = tilstand) {
+                    is QuizTilstand.ForFaaBilder -> ForFaaBilderMelding()
+                    is QuizTilstand.VenterPaaSvar -> SporsmalVisning(t)
+                    is QuizTilstand.SvarGitt -> ResultatVisning(t)
+                }
             }
         }
     }
 
-    // TODO: Implementer QuizSkjerm() Composable
-    // Scaffold med TopAppBar
-    // ScoreVisning øverst
-    // when(tilstand) for å vise riktig innhold:
-    //  ForFaaBilder -> ForFaaBilderMelding()
-    //   VenterPaaSvar -> SporsmalVisning()
-    //   SvarGitt -> ResultatVisning()
+    /**
+     * Viser gjeldende score.
+     */
+    @Composable
+    fun ScoreVisning() {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.score_riktige),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text(
+                        text = "$antallRiktige",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-    // TODO: Implementer ScoreVisning() Composable
-    // Card med riktige, totalt, og prosent
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.score_totalt),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text(
+                        text = "$antallTotalt",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-    // TODO: Implementer ForFaaBilderMelding() Composable
-    // Melding om at det trengs minst 3 bilder
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.score_prosent),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text(
+                        text = if (antallTotalt > 0) {
+                            "${(antallRiktige * 100 / antallTotalt)}%"
+                        } else {
+                            "-%"
+                        },
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
 
-    // TODO: Implementer SporsmalVisning(tilstand: QuizTilstand.VenterPaaSvar) Composable
-    //Vis bilde
-    //Vis 3 svarknapper
+    /**
+     * Melding når det er for få bilder til å spille quiz.
+     */
+    @Composable
+    fun ForFaaBilderMelding() {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.for_faa_bilder_tittel),
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.for_faa_bilder_melding),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { finish() }) {
+                    Text(stringResource(R.string.gaa_til_galleri))
+                }
+            }
+        }
+    }
 
-    // TODO: Implementer ResultatVisning(tilstand: QuizTilstand.SvarGitt) Composable
-    //Vis om svaret var riktig/feil
-    //Vis riktig svar hvis feil
-    //Vis "Neste"-knapp
+    @Composable
+    fun SporsmalVisning(tilstand: QuizTilstand.VenterPaaSvar) {
+        val context = LocalContext.current
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Spørsmålstekst
+            Text(
+                text = stringResource(R.string.quiz_sporsmal),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Bilde
+            Image(
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(context)
+                        .data(tilstand.gjeldendeBilde.bildeUri)
+                        .crossfade(true)
+                        .build()
+                ),
+                contentDescription = stringResource(R.string.quiz_bilde_beskrivelse),
+                modifier = Modifier
+                    .size(250.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Svaralternativer
+            tilstand.svaralternativer.forEach { svar ->
+                Button(
+                    onClick = { behandleSvar(svar) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = svar,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Viser resultatet etter at brukeren har svart.
+     */
+    @Composable
+    fun ResultatVisning(tilstand: QuizTilstand.SvarGitt) {
+        val context = LocalContext.current
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Resultat-tekst
+            Text(
+                text = if (tilstand.erRiktig) {
+                    stringResource(R.string.svar_riktig)
+                } else {
+                    stringResource(R.string.svar_feil)
+                },
+                style = MaterialTheme.typography.headlineMedium,
+                color = if (tilstand.erRiktig) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.error
+                },
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Bilde
+            Image(
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(context)
+                        .data(tilstand.gjeldendeBilde.bildeUri)
+                        .crossfade(true)
+                        .build()
+                ),
+                contentDescription = tilstand.riktigSvar,
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Vis riktig svar hvis feil
+            if (!tilstand.erRiktig) {
+                Text(
+                    text = stringResource(R.string.riktig_svar_var, tilstand.riktigSvar),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Vis hva brukeren svarte
+            Text(
+                text = stringResource(R.string.du_svarte, tilstand.valgtSvar),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Neste-knapp
+            Button(
+                onClick = { lastNyttSporsmal() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.neste_sporsmal),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
+    }
 }
