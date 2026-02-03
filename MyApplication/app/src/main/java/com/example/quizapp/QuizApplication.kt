@@ -33,18 +33,14 @@ import com.example.quizapp.data.BildeOppforing
 
 class QuizApplication : Application() {
 
-
     val bildeOppforinger: MutableList<BildeOppforing> = mutableListOf()
 
-
     private var nesteId: Long = 1000
-
 
     override fun onCreate() {
         super.onCreate()
         lastInnebygdeBilder()
     }
-
 
     private fun lastInnebygdeBilder() {
         // Liste over innebygde bilder med navn og ressurs-ID

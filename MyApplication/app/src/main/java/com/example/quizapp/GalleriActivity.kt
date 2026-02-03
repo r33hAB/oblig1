@@ -48,13 +48,13 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.quizapp.data.BildeOppforing
 import com.example.quizapp.ui.theme.QuizAppTheme
-
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 class GalleriActivity : ComponentActivity() {
 
     private lateinit var quizApp: QuizApplication
-
-    // TODO: Opprett mutableStateOf for bildeOppforinger
-    // private var bildeOppforinger by mutableStateOf<List<BildeOppforing>>(emptyList())
+    private var bildeOppforinger by mutableStateOf<List<BildeOppforing>>(emptyList())
 
     // TODO: Opprett states for dialoger og ventende URI
     // ventendeUri, visLeggTilDialog, visSlettDialog, oppforingTilSletting
@@ -64,26 +64,24 @@ class GalleriActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         quizApp = applicationContext as QuizApplication
-
-        // TODO: Last inn bildelisten
+        oppdaterBildeliste()
 
         setContent {
             QuizAppTheme {
-                // TODO: Erstatt dette med GalleriSkjerm()
-                PlaceholderSkjerm()
+                GalleriSkjerm()
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // TODO: Oppdater bildelisten når aktiviteten blir synlig igjen
+        oppdaterBildeliste()
     }
 
-    // TODO: Implementer oppdaterBildeliste()
-    // Hint: bildeOppforinger = quizApp.bildeOppforinger.toList()
+    private fun oppdaterBildeliste() {
+        bildeOppforinger = quizApp.bildeOppforinger.toList()
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -116,19 +114,112 @@ class GalleriActivity : ComponentActivity() {
             }
         }
     }
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun GalleriSkjerm() {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.galleri_tittel)) },
+                    navigationIcon = {
+                        IconButton(onClick = { finish() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.tilbake)
+                            )
+                        }
+                    },
+                    actions = {
+                        // TODO: Sorteringsmeny kommer i neste steg
+                        IconButton(onClick = { /* TODO */ }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Mer"
+                            )
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = { /* TODO: legg til bilde*/ }) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.legg_til)
+                    )
+                }
+            }
+        ) { paddingVerdier ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingVerdier)
+                    .padding(16.dp)
+            ) {
+                if (bildeOppforinger.isEmpty()) {
+                    TomtGalleriMelding()
+                } else {
+                    BildeGalleri(bildeOppforinger)
+                }
+            }
+        }
+    }
 
-    // TODO: Implementer GalleriSkjerm() Composable
-    // Scaffold med TopAppBar (tittel, tilbake-knapp, sorteringsmeny)
-    // FloatingActionButton for å legge til bilder
-    // Vis BildeGalleri eller TomtGalleriMelding basert på om listen er tom
-    // Vis dialoger for å legge til navn og bekrefte sletting
-
-    // TODO: Implementer TomtGalleriMelding() Composable
+    @Composable
+    fun TomtGalleriMelding() {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Galleriet er tomt. \nTrykk for å legge til et bilde.",
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 
     // TODO: Implementer BildeGalleri(oppforinger: List<BildeOppforing>) Composable
     // Bruk LazyColumn med items()
+    @Composable
+    fun BildeGalleri(oppforinger: List<BildeOppforing>) {
+        val context = LocalContext.current
 
-    // TODO: Implementer BildeKort(oppforing: BildeOppforing, onSlett: () -> Unit) Composable
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(oppforinger) { opp ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .paddig(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(context)
+                                .data(opp.bildeUri)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        contentDescription = opp.navn,
+                        modifier = Modiefier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = opp.navn,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+        }
+    }
+
+    // TODO Implementer BildeKort(oppforing: BildeOppforing, onSlett: () -> Unit) Composable
     // Card med bilde, navn og slett-knapp
 
     // TODO: Implementer LeggTilNavnDialog(onBekreft: (String) -> Unit, onAvbryt: () -> Unit) Composable
