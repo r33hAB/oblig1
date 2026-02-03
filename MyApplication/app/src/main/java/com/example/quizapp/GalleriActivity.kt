@@ -51,6 +51,14 @@ import com.example.quizapp.ui.theme.QuizAppTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+
 class GalleriActivity : ComponentActivity() {
 
     private lateinit var quizApp: QuizApplication
@@ -177,8 +185,6 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
-    // TODO: Implementer BildeGalleri(oppforinger: List<BildeOppforing>) Composable
-    // Bruk LazyColumn med items()
     @Composable
     fun BildeGalleri(oppforinger: List<BildeOppforing>) {
         val context = LocalContext.current
@@ -188,39 +194,66 @@ class GalleriActivity : ComponentActivity() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(oppforinger) { opp ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .paddig(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            ImageRequest.Builder(context)
-                                .data(opp.bildeUri)
-                                .crossfade(true)
-                                .build()
-                        ),
-                        contentDescription = opp.navn,
-                        modifier = Modiefier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = opp.navn,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
+                BildeKort(
+                    oppforing = opp,
+                    onSlett = {/* TODO: slett kommer senere */ }
+                )
             }
         }
     }
 
     // TODO Implementer BildeKort(oppforing: BildeOppforing, onSlett: () -> Unit) Composable
     // Card med bilde, navn og slett-knapp
+    @Composable
+    fun BildeKort(
+        oppforing: BildeOppforing,
+        onSlett: () -> Unit
+    ) {
+        val context = LocalContext.current
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(oppforing.bildeUri)
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = oppforing.navn,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = oppforing.navn,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+
+                IconButton(onClick = onSlett) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Slett"
+                    )
+                }
+            }
+        }
+    }
+
 
     // TODO: Implementer LeggTilNavnDialog(onBekreft: (String) -> Unit, onAvbryt: () -> Unit) Composable
     // AlertDialog med TextField for navn
