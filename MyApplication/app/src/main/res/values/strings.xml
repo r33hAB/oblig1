@@ -88,4 +88,7 @@
     <string name="for_faa_bilder_tittel">For få bilder!</string>
     <string name="for_faa_bilder_melding">Du trenger minst 3 bilder i galleriet for å spille quiz. Gå til galleriet og legg til flere bilder.</string>
     <string name="gaa_til_galleri">Gå til galleri</string>
+
+    <!-- Åpner en nedtrekksmeny med ekstra handlinger som ikke får plass i TopAppBar -->
+    <string name="mer">Mer</string>
 </resources>

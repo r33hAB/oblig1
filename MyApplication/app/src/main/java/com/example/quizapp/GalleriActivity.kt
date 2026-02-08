@@ -17,9 +17,11 @@
 package com.example.quizapp
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,7 +34,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,42 +47,37 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.quizapp.data.BildeOppforing
 import com.example.quizapp.ui.theme.QuizAppTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 
+
 class GalleriActivity : ComponentActivity() {
 
     private lateinit var quizApp: QuizApplication
-
-    // Compose-state for listen (UI leser denne)
     private var bildeOppforinger by mutableStateOf<List<BildeOppforing>>(emptyList())
-
-    // Når bruker har valgt et bilde, lagrer vi URI her til vi får skrevet inn navn
     private var ventendeUri by mutableStateOf<Uri?>(null)
-
-    // Dialog-flagg
     private var visLeggTilDialog by mutableStateOf(false)
+
+    private var oppforingTilSletting by mutableStateOf<BildeOppforing?>(null)
     private var visSlettDialog by mutableStateOf(false)
 
-    // Hvilken oppføring som skal slettes (settes når man trykker "slett")
-    private var oppforingTilSletting by mutableStateOf<BildeOppforing?>(null)
+    private var visMeny by mutableStateOf(false)
 
-    // TODO: Opprett ActivityResultLauncher for å velge bilder
-    private var registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> ... }
-
-    private val velgBildeLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
+    private val velgBildeLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri ?: return@registerForActivityResult
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             ventendeUri = uri
             visLeggTilDialog = true
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         quizApp = applicationContext as QuizApplication
         oppdaterBildeliste()
+
         setContent {
             QuizAppTheme {
                 GalleriSkjerm()
@@ -100,38 +96,6 @@ class GalleriActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun PlaceholderSkjerm() {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.galleri_tittel)) },
-                    navigationIcon = {
-                        IconButton(onClick = { finish() }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.tilbake)
-                            )
-                        }
-                    }
-                )
-            }
-        ) { paddingVerdier ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingVerdier),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "TODO: Implementer galleri-visning",
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
     fun GalleriSkjerm() {
         Scaffold(
             topBar = {
@@ -146,27 +110,53 @@ class GalleriActivity : ComponentActivity() {
                         }
                     },
                     actions = {
-                        // TODO: Sorteringsmeny kommer i neste steg
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(
-                                Icons.Filled.MoreVert,
-                                contentDescription = "Mer"
-                            )
+                        Box {
+                            IconButton(onClick = { visMeny = true }) {
+                                Icon(
+                                    Icons.Filled.MoreVert,
+                                    contentDescription = stringResource(R.string.mer)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = visMeny,
+                                onDismissRequest = { visMeny = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.sorter_a_aa)) },
+                                    onClick = {
+                                        quizApp.sorterAlfabetisk()
+                                        oppdaterBildeliste()
+                                        visMeny = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.sorter_aa_a)) },
+                                    onClick = {
+                                        quizApp.sorterOmvendtAlfabetisk()
+                                        oppdaterBildeliste()
+                                        visMeny = false
+                                    }
+                                )
+                            }
                         }
                     }
                 )
             },
-            FloatingActionButton(onClick = {
-                velgBildeLauncher.launch(arrayOf("image/*"))
-            }) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.legg_til))
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { velgBildeLauncher.launch(arrayOf("image/*")) }
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.legg_til)
+                    )
+                }
             }
-
-                    paddingVerdier ->
+        ) { paddingValues ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingVerdier)
+                    .padding(paddingValues)
                     .padding(16.dp)
             ) {
                 if (bildeOppforinger.isEmpty()) {
@@ -174,6 +164,37 @@ class GalleriActivity : ComponentActivity() {
                 } else {
                     BildeGalleri(bildeOppforinger)
                 }
+            }
+            if (visLeggTilDialog && ventendeUri != null) {
+                LeggTilNavnDialog(
+                    onBekreft = { navn ->
+                        val uri = ventendeUri ?: return@LeggTilNavnDialog
+                        quizApp.leggTilOppforing(navn, uri)
+                        ventendeUri = null
+                        visLeggTilDialog = false
+                        oppdaterBildeliste()
+                    },
+                    onAvbryt = {
+                        ventendeUri = null
+                        visLeggTilDialog = false
+                    }
+                )
+            }
+            if (visSlettDialog && oppforingTilSletting != null) {
+                BekreftSlettingDialog(
+                    navn = oppforingTilSletting!!.navn,
+                    onBekreft = {
+                        val id = oppforingTilSletting!!.id
+                        quizApp.fjernOppforing(id)
+                        oppforingTilSletting = null
+                        visSlettDialog = false
+                        oppdaterBildeliste()
+                    },
+                    onAvbryt = {
+                        oppforingTilSletting = null
+                        visSlettDialog = false
+                    }
+                )
             }
         }
     }
@@ -185,7 +206,7 @@ class GalleriActivity : ComponentActivity() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Galleriet er tomt. \nTrykk for å legge til et bilde.",
+                text = stringResource(R.string.tomt_galleri),
                 textAlign = TextAlign.Center
             )
         }
@@ -193,16 +214,17 @@ class GalleriActivity : ComponentActivity() {
 
     @Composable
     fun BildeGalleri(oppforinger: List<BildeOppforing>) {
-        val context = LocalContext.current
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(oppforinger) { opp ->
+            items(oppforinger, key = { it.id }) { opp ->
                 BildeKort(
                     oppforing = opp,
-                    onSlett = {/* TODO: slett kommer senere */ }
+                    onSlett = {
+                        oppforingTilSletting = opp
+                        visSlettDialog = true
+                    }
                 )
             }
         }
@@ -257,30 +279,28 @@ class GalleriActivity : ComponentActivity() {
 
     @Composable
     fun LeggTilNavnDialog(onBekreft: (String) -> Unit, onAvbryt: () -> Unit) {
-        var navn by remember { mutableStateOf("") }
+        var inputNavn by remember { mutableStateOf("") }
 
         AlertDialog(
             onDismissRequest = onAvbryt,
-            title = { Text("Gi bildet et navn") },
+            title = { Text(stringResource(R.string.legg_til_navn_tittel)) },
             text = {
                 OutlinedTextField(
-                    value = navn,
-                    onValueChange = { navn = it },
-                    label = { Text("Navn") },
+                    value = inputNavn,
+                    onValueChange = { inputNavn = it },
+                    label = { Text(stringResource(R.string.navn_hint)) },
                     singleLine = true
                 )
             },
             confirmButton = {
                 TextButton(
-                    onClick = { onBekreft(navn.trim()) },
-                    enabled = navn.trim().isNotEmpty()
-                ) {
-                    Text("Lagre")
-                }
+                    onClick = { onBekreft(inputNavn.trim()) },
+                    enabled = inputNavn.trim().isNotEmpty()
+                ) { Text(stringResource(R.string.bekreft)) }
             },
             dismissButton = {
                 TextButton(onClick = onAvbryt) {
-                    Text("Avbryt")
+                    Text(stringResource(R.string.avbryt))
                 }
             }
         )
@@ -290,24 +310,18 @@ class GalleriActivity : ComponentActivity() {
     fun BekreftSlettingDialog(navn: String, onBekreft: () -> Unit, onAvbryt: () -> Unit) {
         AlertDialog(
             onDismissRequest = onAvbryt,
-            title = { Text("Slett bilde") },
-            text = { Text("Er du sikker på at du vil slette \"$navn\"?")
-            },
+            title = { Text(stringResource(R.string.bekreft_sletting_tittel)) },
+            text = { Text(stringResource(R.string.bekreft_sletting_melding, navn)) },
             confirmButton = {
                 TextButton(onClick = onBekreft) {
-                    Text("Slett")
-                }
+                    Text(stringResource(R.string.slett)) }
             },
             dismissButton = {
                 TextButton(onClick = onAvbryt) {
-                    Text("Avbryt")
-                }
+                    Text(stringResource(R.string.avbryt)) }
             }
         )
     }
-
-
-    // TODO: Implementer BekreftSlettingDialog(...) Composable
-    // AlertDialog med bekreftelse før sletting
+}
 
 
