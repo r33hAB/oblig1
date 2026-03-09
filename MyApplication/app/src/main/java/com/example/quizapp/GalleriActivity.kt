@@ -55,24 +55,48 @@ import androidx.compose.material3.Text
 
 class GalleriActivity : ComponentActivity() {
 
+    // Referanse til Application-laget (delt datastruktur på tvers av Activities)
     private lateinit var quizApp: QuizApplication
+
+    // Compose-state: kopi av listen som UI tegnes fra (endring => UI oppdateres)
     private var bildeOppforinger by mutableStateOf<List<BildeOppforing>>(emptyList())
+
+    // Compose-state for "legg til bilde"-flyten: valgt URI + om navnedialog skal vises
     private var ventendeUri by mutableStateOf<Uri?>(null)
     private var visLeggTilDialog by mutableStateOf(false)
 
+    // Compose-state for sletting: hvilken oppføring som skal slettes + om slettedialog skal vises
     private var oppforingTilSletting by mutableStateOf<BildeOppforing?>(null)
     private var visSlettDialog by mutableStateOf(false)
 
+    // Compose-state: om sorteringsmenyen er åpnet
     private var visMeny by mutableStateOf(false)
 
+    /**
+     * Launcher for å velge bilde fra telefonen via Storage Access Framework.
+     * Når brukeren velger en fil får vi en Uri.
+     * - takePersistableUriPermission sørger for at appen beholder lesetilgang senere.
+     * - Deretter åpner vi en dialog for å gi bildet et navn.
+     */
     private val velgBildeLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            // Hvis brukeren avbryter, er uri null.
+            // hvis null, avslutt denne callbacken
             uri ?: return@registerForActivityResult
+            // Ber Android om å “huske” at appen har lesetilgang til denne bilde-uri
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Lagrer den valgte Uri i state.
             ventendeUri = uri
+            // Setter state slik at “gi navn”-dialogen vises.
             visLeggTilDialog = true
         }
 
+    /**
+     * Starter aktiviteten:
+     * - Henter QuizApplication (global delt datastruktur)
+     * - Oppdaterer state-lista som UI skal tegnes fra
+     * - Setter Compose-innholdet (GalleriSkjerm)
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         quizApp = applicationContext as QuizApplication
@@ -85,15 +109,31 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Kalles når vi kommer tilbake til skjermen.
+     * Brukes her som en ekstra sikkerhet for å synke UI-lista med QuizApplication.
+     */
     override fun onResume() {
         super.onResume()
         oppdaterBildeliste()
     }
 
+    /**
+     * Synkroniserer Compose-state med den delte lista i QuizApplication.
+     * toList() lager en kopi slik at vi setter en ny state-verdi (trigge redraw).
+     */
     private fun oppdaterBildeliste() {
         bildeOppforinger = quizApp.bildeOppforinger.toList()
     }
 
+    /**
+     * Hele galleriskjermen i Compose.
+     * Bruker Scaffold for standard oppsett:
+     * - TopAppBar (tittel, tilbake, meny for sortering)
+     * - FAB (+) for å legge til bilde
+     * - Innhold: tom-melding eller LazyColumn-liste
+     * I tillegg tegnes dialoger betinget (hvis state sier de skal vises).
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GalleriSkjerm() {
@@ -102,6 +142,7 @@ class GalleriActivity : ComponentActivity() {
                 TopAppBar(
                     title = { Text(stringResource(R.string.galleri_tittel)) },
                     navigationIcon = {
+                        // Tilbake: avslutter denne Activity og går tilbake til MainActivity
                         IconButton(onClick = { finish() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
@@ -110,6 +151,7 @@ class GalleriActivity : ComponentActivity() {
                         }
                     },
                     actions = {
+                        // Sorteringsmeny (3 prikker)
                         Box {
                             IconButton(onClick = { visMeny = true }) {
                                 Icon(
@@ -143,6 +185,7 @@ class GalleriActivity : ComponentActivity() {
                 )
             },
             floatingActionButton = {
+                // FAB (+): åpner dokumentvelger for å velge bilde
                 FloatingActionButton(
                     onClick = { velgBildeLauncher.launch(arrayOf("image/*")) }
                 ) {
@@ -153,6 +196,7 @@ class GalleriActivity : ComponentActivity() {
                 }
             }
         ) { paddingValues ->
+            // Innholdsområde: tom-melding eller liste
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -165,6 +209,7 @@ class GalleriActivity : ComponentActivity() {
                     BildeGalleri(bildeOppforinger)
                 }
             }
+            // Dialog for å skrive navn når et nytt bilde er valgt
             if (visLeggTilDialog && ventendeUri != null) {
                 LeggTilNavnDialog(
                     onBekreft = { navn ->
@@ -180,6 +225,7 @@ class GalleriActivity : ComponentActivity() {
                     }
                 )
             }
+            // Bekreftelsesdialog for sletting av bilde
             if (visSlettDialog && oppforingTilSletting != null) {
                 BekreftSlettingDialog(
                     navn = oppforingTilSletting!!.navn,
@@ -199,6 +245,10 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Vises når listen er tom.
+     * En enkel, sentrert melding som forklarer at galleriet ikke har innhold.
+     */
     @Composable
     fun TomtGalleriMelding() {
         Box(
@@ -212,6 +262,10 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Viser bildegalleriet som en scrollbar liste (LazyColumn).
+     * Hvert element tegnes som et BildeKort.
+     */
     @Composable
     fun BildeGalleri(oppforinger: List<BildeOppforing>) {
         LazyColumn(
@@ -230,6 +284,12 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Ett listeelement (kort) for en bildeoppføring:
+     * - Miniatyrbilde lastet fra Uri (Coil)
+     * - Navn på bildet
+     * - Sletteknapp som trigges via onSlett-callback
+     */
     @Composable
     fun BildeKort(oppforing: BildeOppforing, onSlett: () -> Unit) {
         val context = LocalContext.current
@@ -277,6 +337,10 @@ class GalleriActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Dialog for å gi nytt bilde et navn.
+     * Returnerer navnet via onBekreft dersom brukeren bekrefter.
+     */
     @Composable
     fun LeggTilNavnDialog(onBekreft: (String) -> Unit, onAvbryt: () -> Unit) {
         var inputNavn by remember { mutableStateOf("") }
@@ -306,6 +370,10 @@ class GalleriActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Dialog for å bekrefte sletting av en oppføring.
+     * Kaller onBekreft ved slett, og onAvbryt hvis bruker angrer/lukker.
+     */
     @Composable
     fun BekreftSlettingDialog(navn: String, onBekreft: () -> Unit, onAvbryt: () -> Unit) {
         AlertDialog(
