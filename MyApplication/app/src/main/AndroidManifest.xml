@@ -66,6 +66,11 @@
             android:label="@string/quiz_tittel"
             android:parentActivityName=".MainActivity" />
 
+        <provider
+            android:name=".provider.GalleryContentProvider"
+            android:authorities="com.example.quizapp.provider.gallery"
+            android:exported="false" />
+
     </application>
 
 </manifest>
