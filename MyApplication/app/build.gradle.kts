@@ -19,6 +19,9 @@ plugins {
     // Kotlin Android plugin - gir Kotlin-støtte
     alias(libs.plugins.kotlin.android)
 
+    // KSP - required for Room code generation
+    alias(libs.plugins.ksp)
+
     // Compose Compiler plugin - nødvendig for Jetpack Compose fra Kotlin 2.0
     alias(libs.plugins.compose.compiler)
 }
@@ -98,6 +101,9 @@ dependencies {
     // ConstraintLayout for XML-basert hovedmeny
     implementation(libs.androidx.constraintlayout)
 
+    // Lifecycle ViewModel for future screen state handling
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
     // === JETPACK COMPOSE ===
     // BOM (Bill of Materials) sikrer at alle Compose-biblioteker har kompatible versjoner
     implementation(platform(libs.androidx.compose.bom))
@@ -128,8 +134,14 @@ dependencies {
     // - Mindre og raskere
     implementation(libs.coil.compose)
 
+    // === ROOM ===
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     // === TESTING ===
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.intents)
 }

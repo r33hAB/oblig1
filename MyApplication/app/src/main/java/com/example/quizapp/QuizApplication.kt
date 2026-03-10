@@ -28,10 +28,25 @@ package com.example.quizapp
 
 import android.app.Application
 import android.net.Uri
+import androidx.room.Room
 import com.example.quizapp.data.BildeOppforing
+import com.example.quizapp.data.GalleryRepository
+import com.example.quizapp.data.local.AppDatabase
 
 
 class QuizApplication : Application() {
+
+    val database: AppDatabase by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "gallery.db"
+        ).build()
+    }
+
+    val galleryRepository: GalleryRepository by lazy {
+        GalleryRepository(database.galleryItemDao())
+    }
 
     val bildeOppforinger: MutableList<BildeOppforing> = mutableListOf()
 
@@ -39,7 +54,7 @@ class QuizApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        lastInnebygdeBilder()
+        //lastInnebygdeBilder()
     }
 
     private fun lastInnebygdeBilder() {
