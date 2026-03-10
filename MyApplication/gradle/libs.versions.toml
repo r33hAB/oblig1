@@ -6,7 +6,7 @@
 
 [versions]
 # Android Gradle Plugin versjon
-agp = "8.7.3"
+agp = "8.13.2"
 
 # Kotlin versjon - må matche Compose-kompilator
 kotlin = "2.0.21"

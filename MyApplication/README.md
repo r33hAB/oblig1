@@ -68,7 +68,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 
 ## Implementation Checklist
 
-### 1. Room Database
+### 1. Room Database (Victoria)
 
 - [ ] Create gallery metadata `Entity`
 - [ ] Define primary key
@@ -87,24 +87,24 @@ students divide the work without replacing the existing Oblig 1 solution.
 - [ ] Connect repository to DAO
 - [ ] Keep database access out of activities
 
-### 2. ViewModels
+### 2. ViewModels (Andreas)
 
-- [ ] Create `GalleryViewModel`
-- [ ] Handle gallery screen state
-- [ ] Load saved gallery metadata
-- [ ] Expose gallery list to UI
-- [ ] Add function to save new gallery item
-- [ ] Add function to refresh data
-- [ ] Create `QuizViewModel`
-- [ ] Handle quiz screen state
-- [ ] Keep track of current question
-- [ ] Keep track of score
-- [ ] Keep track of finished quiz state
-- [ ] Add function to submit answer
-- [ ] Add function to move to next question
-- [ ] Add function to restart quiz
+- [x] Create `GalleryViewModel`
+- [x] Handle gallery screen state
+- [x] Load saved gallery metadata
+- [x] Expose gallery list to UI
+- [x] Add function to save new gallery item
+- [x] Add function to refresh data
+- [x] Create `QuizViewModel`
+- [x] Handle quiz screen state
+- [x] Keep track of current question
+- [x] Keep track of score
+- [x] Keep track of finished quiz state
+- [x] Add function to submit answer
+- [x] Add function to move to next question
+- [x] Add function to restart quiz
 
-### 3. Data Handling
+### 3. Data Handling (Victoria)
 
 - [ ] Persist gallery metadata in Room
 - [ ] Load stored data on app startup
@@ -113,7 +113,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 - [ ] Do not store full image files in Room
 - [ ] Keep URI handling consistent in repository and ViewModel
 
-### 4. ContentProvider
+### 4. ContentProvider (Andreas)
 
 - [ ] Create provider class
 - [ ] Define authority constant
@@ -127,7 +127,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 - [ ] Register provider in `AndroidManifest.xml`
 - [ ] Verify exported settings match assignment needs
 
-### 5. ContentProvider Testing With adb
+### 5. ContentProvider Testing With adb (Kristoffer)
 
 - [ ] Add `adb shell content query` example
 - [ ] Add `adb shell content insert` example
@@ -136,7 +136,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 - [ ] Test single-item URI if supported
 - [ ] Verify returned data matches Room content
 
-### 6. Espresso UI Tests
+### 6. Espresso UI Tests (Kristoffer)
 
 - [ ] Create navigation test
 - [ ] Verify screen changes are correct
@@ -147,7 +147,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 - [ ] Stub intents when external actions are triggered
 - [ ] Keep tests stable and repeatable
 
-### 7. Test Structure
+### 7. Test Structure (Kristoffer)
 
 - [ ] Put instrumentation tests in the correct test folder
 - [ ] Use clear test class names

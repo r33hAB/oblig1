@@ -13,7 +13,7 @@ class GalleryRepository(
     // Leser fra Room og konverterer fra GalleryItemEntity → BildeOppforing
     private fun entityToBildeOppforing(entity: GalleryItemEntity): BildeOppforing {
         return BildeOppforing(
-            id = entity.id,
+            id = entity.id.toLong(),
             navn = entity.name,
             bildeUri = Uri.parse(entity.uri)
         )

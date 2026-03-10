@@ -25,12 +25,16 @@
 package com.example.quizapp
 
 import android.os.Bundle
+import android.widget.Button
+import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -45,61 +49,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.quizapp.data.BildeOppforing
 import com.example.quizapp.ui.theme.QuizAppTheme
-
-sealed class QuizTilstand {
-    data class VenterPaaSvar(
-        val gjeldendeBilde: BildeOppforing,
-        val svaralternativer: List<String>
-    ) : QuizTilstand()
-
-    data class SvarGitt(
-        val gjeldendeBilde: BildeOppforing,
-        val valgtSvar: String,
-        val riktigSvar: String,
-        val erRiktig: Boolean
-    ) : QuizTilstand()
-
-    data object ForFaaBilder : QuizTilstand()
-}
+import com.example.quizapp.viewmodel.QuizPhase
+import com.example.quizapp.viewmodel.QuizViewModel
+import com.example.quizapp.viewmodel.QuizViewModelFactory
 
 
 class QuizActivity : ComponentActivity() {
 
-
-    private lateinit var quizApp: QuizApplication
-
-    private var tilstand by mutableStateOf<QuizTilstand>(QuizTilstand.ForFaaBilder)
-
-    private var antallRiktige by mutableStateOf(0)
-
-    /**
-     * Totalt antall spørsmål besvart i denne sesjonen.
-     */
-    private var antallTotalt by mutableStateOf(0)
-
-    /**
-     * Minimum antall bilder som kreves for å spille quiz.
-     * Vi trenger minst 3 for å ha 1 riktig og 2 feil svar.
-     */
-    companion object {
-        const val MINIMUM_BILDER = 3
-        const val ANTALL_FEIL_SVAR = 2
+    private val viewModel: QuizViewModel by viewModels {
+        val app = application as QuizApplication
+        QuizViewModelFactory(app.galleryRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Hent referanse til Application-klassen
-        quizApp = applicationContext as QuizApplication
-
-        // Start quizen med første spørsmål
-        lastNyttSporsmal()
-
-        // Sett Compose-innhold
         setContent {
             QuizAppTheme {
                 QuizSkjerm()
@@ -107,61 +76,10 @@ class QuizActivity : ComponentActivity() {
         }
     }
 
-    private fun lastNyttSporsmal() {
-        // Sjekk at vi har nok bilder
-        if (quizApp.bildeOppforinger.size < MINIMUM_BILDER) {
-            tilstand = QuizTilstand.ForFaaBilder
-            return
-        }
-
-        // Velg tilfeldig bilde
-        val riktigBilde = quizApp.hentTilfeldigOppforing()!!
-
-        // Hent feil svar (navn fra andre bilder)
-        val feilSvar = quizApp.hentFeilSvar(riktigBilde.id, ANTALL_FEIL_SVAR)
-
-        // Kombiner riktig og feil svar, og bland dem
-        val alleSvar = (listOf(riktigBilde.navn) + feilSvar).shuffled()
-
-        // Oppdater tilstand til å vente på svar
-        tilstand = QuizTilstand.VenterPaaSvar(
-            gjeldendeBilde = riktigBilde,
-            svaralternativer = alleSvar
-        )
-    }
-
-    /**
-     * Håndterer når brukeren velger et svar.
-     *
-     * @param valgtSvar Svaret brukeren klikket på
-     */
-    private fun behandleSvar(valgtSvar: String) {
-        val gjeldendeTilstand = tilstand as? QuizTilstand.VenterPaaSvar ?: return
-
-        val riktigSvar = gjeldendeTilstand.gjeldendeBilde.navn
-        val erRiktig = valgtSvar == riktigSvar
-
-        // Oppdater statistikk
-        antallTotalt++
-        if (erRiktig) {
-            antallRiktige++
-        }
-
-        // Oppdater tilstand til å vise resultat
-        tilstand = QuizTilstand.SvarGitt(
-            gjeldendeBilde = gjeldendeTilstand.gjeldendeBilde,
-            valgtSvar = valgtSvar,
-            riktigSvar = riktigSvar,
-            erRiktig = erRiktig
-        )
-    }
-
-    /**
-     * Hovedskjermen for quizen.
-     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun QuizSkjerm() {
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -184,26 +102,30 @@ class QuizActivity : ComponentActivity() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Score-visning
-                ScoreVisning()
-
+                ScoreVisning(
+                    scoreRiktige = uiState.scoreRiktige,
+                    scoreTotalt = uiState.scoreTotalt
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Hovedinnhold basert på tilstand
-                when (val t = tilstand) {
-                    is QuizTilstand.ForFaaBilder -> ForFaaBilderMelding()
-                    is QuizTilstand.VenterPaaSvar -> SporsmalVisning(t)
-                    is QuizTilstand.SvarGitt -> ResultatVisning(t)
+                when (val phase = uiState.phase) {
+                    is QuizPhase.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is QuizPhase.ForFaaBilder -> ForFaaBilderMelding()
+                    is QuizPhase.VenterPaaSvar -> SporsmalVisning(phase)
+                    is QuizPhase.SvarGitt -> ResultatVisning(phase)
                 }
             }
         }
     }
 
-    /**
-     * Viser gjeldende score.
-     */
     @Composable
-    fun ScoreVisning() {
+    fun ScoreVisning(scoreRiktige: Int, scoreTotalt: Int) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -222,32 +144,30 @@ class QuizActivity : ComponentActivity() {
                         style = MaterialTheme.typography.labelMedium
                     )
                     Text(
-                        text = "$antallRiktige",
+                        text = "$scoreRiktige",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
-
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stringResource(R.string.score_totalt),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Text(
-                        text = "$antallTotalt",
+                        text = "$scoreTotalt",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
-
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stringResource(R.string.score_prosent),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Text(
-                        text = if (antallTotalt > 0) {
-                            "${(antallRiktige * 100 / antallTotalt)}%"
+                        text = if (scoreTotalt > 0) {
+                            "${(scoreRiktige * 100 / scoreTotalt)}%"
                         } else {
                             "-%"
                         },
@@ -259,9 +179,6 @@ class QuizActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Melding når det er for få bilder til å spille quiz.
-     */
     @Composable
     fun ForFaaBilderMelding() {
         Box(
@@ -292,14 +209,13 @@ class QuizActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SporsmalVisning(tilstand: QuizTilstand.VenterPaaSvar) {
+    fun SporsmalVisning(phase: QuizPhase.VenterPaaSvar) {
         val context = LocalContext.current
 
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Spørsmålstekst
             Text(
                 text = stringResource(R.string.quiz_sporsmal),
                 style = MaterialTheme.typography.titleLarge,
@@ -308,31 +224,21 @@ class QuizActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Bilde
             Image(
                 painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(context)
-                        .data(tilstand.gjeldendeBilde.bildeUri)
-                        .crossfade(true)
-                        .build()
+                    ImageRequest.Builder(context).data(phase.gjeldendeBilder.bildeUri).crossfade(true).build()
                 ),
                 contentDescription = stringResource(R.string.quiz_bilde_beskrivelse),
-                modifier = Modifier
-                    .size(250.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                modifier = Modifier.size(250.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Svaralternativer
-            tilstand.svaralternativer.forEach { svar ->
+            phase.svaralternativer.forEach { svar ->
                 Button(
-                    onClick = { behandleSvar(svar) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    onClick = { viewModel.submitAnswer(svar) },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
@@ -345,26 +251,22 @@ class QuizActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Viser resultatet etter at brukeren har svart.
-     */
     @Composable
-    fun ResultatVisning(tilstand: QuizTilstand.SvarGitt) {
+    fun ResultatVisning(phase: QuizPhase.SvarGitt) {
         val context = LocalContext.current
 
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Resultat-tekst
             Text(
-                text = if (tilstand.erRiktig) {
+                text = if (phase.erRiktig) {
                     stringResource(R.string.svar_riktig)
                 } else {
                     stringResource(R.string.svar_feil)
                 },
                 style = MaterialTheme.typography.headlineMedium,
-                color = if (tilstand.erRiktig) {
+                color = if (phase.erRiktig) {
                     MaterialTheme.colorScheme.primary
                 } else {
                     MaterialTheme.colorScheme.error
@@ -374,37 +276,29 @@ class QuizActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bilde
             Image(
                 painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(context)
-                        .data(tilstand.gjeldendeBilde.bildeUri)
-                        .crossfade(true)
-                        .build()
+                    ImageRequest.Builder(context).data(phase.gjeldendeBilder.bildeUri).crossfade(true).build()
                 ),
-                contentDescription = tilstand.riktigSvar,
-                modifier = Modifier
-                    .size(200.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentDescription = phase.riktigSvar,
+                modifier = Modifier.size(200.dp).clip(RoundedCornerShape(16.dp)).background(
+                    MaterialTheme.colorScheme.surfaceVariant),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Vis riktig svar hvis feil
-            if (!tilstand.erRiktig) {
+            if (!phase.erRiktig) {
                 Text(
-                    text = stringResource(R.string.riktig_svar_var, tilstand.riktigSvar),
+                    text = stringResource(R.string.riktig_svar_var, phase.riktigSvar),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Vis hva brukeren svarte
             Text(
-                text = stringResource(R.string.du_svarte, tilstand.valgtSvar),
+                text = stringResource(R.string.du_svarte, phase.valgtSvar),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -412,9 +306,8 @@ class QuizActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Neste-knapp
             Button(
-                onClick = { lastNyttSporsmal() },
+                onClick = { viewModel.nextQuestion() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
