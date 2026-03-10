@@ -1,23 +1,50 @@
 package com.example.quizapp.data
 
 import com.example.quizapp.data.local.GalleryItemDao
+import com.example.quizapp.data.local.GalleryItemEntity
+import android.net.Uri
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-/**
- * Optional repository layer between Room and ViewModels.
- *
- * Keep this class small and student-friendly. The full logic can be added
- * incrementally by the team during Oblig 2.
- */
 class GalleryRepository(
     private val galleryItemDao: GalleryItemDao
 ) {
-    /*
-     * TODO (required): Expose a method for loading gallery items from Room.
-     * TODO (required): Map GalleryItemEntity objects to BildeOppforing and back.
-     * TODO (required): Decide where Uri.parse(...) and Uri.toString() should live.
-     * TODO (required): Add a method for inserting a gallery item.
-     * TODO (required): Add a method for deleting a gallery item.
-     * TODO (optional): Decide whether QuizApplication should use this repository later.
-     * TODO (optional): Keep mapping code here if the team wants Activities and ViewModels to stay simpler.
-     */
+
+    // Leser fra Room og konverterer fra GalleryItemEntity → BildeOppforing
+    private fun entityToBildeOppforing(entity: GalleryItemEntity): BildeOppforing {
+        return BildeOppforing(
+            id = entity.id,
+            navn = entity.name,
+            bildeUri = Uri.parse(entity.uri)
+        )
+    }
+
+    // Her lagres det i Room som konverteres fra BildeOppforing → GalleryItemEntity
+    private fun bildeOppforingToEntity(item: BildeOppforing): GalleryItemEntity {
+        return GalleryItemEntity(
+            id = 0,
+            name = item.navn,
+            uri = item.bildeUri.toString()
+        )
+    }
+
+    fun getAllAsc(): Flow<List<BildeOppforing>> {
+        return galleryItemDao.getAllAsc().map { list ->
+            list.map { entityToBildeOppforing(it) }
+        }
+    }
+
+    fun getAllDesc(): Flow<List<BildeOppforing>> {
+        return galleryItemDao.getAllDesc().map { list ->
+            list.map { entityToBildeOppforing(it) }
+        }
+    }
+
+    suspend fun insert(item: BildeOppforing) {
+        galleryItemDao.insert(bildeOppforingToEntity(item))
+    }
+
+    suspend fun delete(item: BildeOppforing) {
+        galleryItemDao.delete(bildeOppforingToEntity(item))
+    }
 }

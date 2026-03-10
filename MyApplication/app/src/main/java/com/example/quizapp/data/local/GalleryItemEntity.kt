@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "gallery_items")
 data class GalleryItemEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val name: String,
     val uri: String
 )

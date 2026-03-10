@@ -15,6 +15,9 @@ plugins {
     // Kotlin Android plugin - for Kotlin-støtte
     alias(libs.plugins.kotlin.android) apply false
 
+    // KSP plugin - for kodegenerering brukt av Room
+    alias(libs.plugins.ksp) apply false
+
     // Compose Compiler plugin - for Jetpack Compose
     alias(libs.plugins.compose.compiler) apply false
 }

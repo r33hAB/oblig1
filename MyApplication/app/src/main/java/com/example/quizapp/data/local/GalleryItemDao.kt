@@ -5,17 +5,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
-/**
- * DAO skeleton for gallery items.
- *
- * The team can expand this interface with update/search methods later.
- *
- * TODO (required): Keep the minimum methods needed by Oblig 2.
- * TODO (optional): Consider whether getAll() should later return Flow<List<GalleryItemEntity>>
- * instead of List so the UI updates automatically.
- * TODO (optional): Consider whether sorting A-Å / Å-A should be handled in DAO queries.
- */
 @Dao
 interface GalleryItemDao {
 
@@ -25,6 +16,12 @@ interface GalleryItemDao {
     @Delete
     suspend fun delete(item: GalleryItemEntity)
 
+    // Vi velger Flow og ikke List fordi da kan UI automatisk få oppdateringer når databasen endres
+    // A-Å
     @Query("SELECT * FROM gallery_items ORDER BY name ASC")
-    suspend fun getAll(): List<GalleryItemEntity>
+    fun getAllAsc(): Flow<List<GalleryItemEntity>>
+
+    // Å-A
+    @Query("SELECT * FROM gallery_items ORDER BY name DESC")
+    fun getAllDesc(): Flow<List<GalleryItemEntity>>
 }
