@@ -70,22 +70,20 @@ students divide the work without replacing the existing Oblig 1 solution.
 
 ### 1. Room Database (Victoria)
 
-- [ ] Create gallery metadata `Entity`
-- [ ] Define primary key
-- [ ] Add fields for image URI
-- [ ] Add fields for title or label if needed
-- [ ] Add timestamp or ordering field if needed
-- [ ] Create DAO interface
-- [ ] Add insert function
-- [ ] Add query-all function
-- [ ] Add query-by-id or URI function if needed
-- [ ] Add delete or replace strategy
-- [ ] Create Room `Database` class
-- [ ] Register entity in database
-- [ ] Expose DAO from database
-- [ ] Create repository
-- [ ] Connect repository to DAO
-- [ ] Keep database access out of activities
+- [x] Create gallery metadata `Entity`
+- [x] Define primary key
+- [x] Add fields for image URI
+- [x] Add fields for title or label if needed
+- [x] Create DAO interface
+- [x] Add insert function
+- [x] Add query-all function
+- [x] Add delete or replace strategy
+- [x] Create Room `Database` class
+- [x] Register entity in database
+- [x] Expose DAO from database
+- [x] Create repository
+- [x] Connect repository to DAO
+- [x] Keep database access out of activities
 
 ### 2. ViewModels (Andreas)
 
