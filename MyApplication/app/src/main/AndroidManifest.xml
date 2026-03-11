@@ -69,7 +69,7 @@
         <provider
             android:name=".provider.GalleryContentProvider"
             android:authorities="com.example.quizapp.provider.gallery"
-            android:exported="false" />
+            android:exported="true" />
 
     </application>
 
