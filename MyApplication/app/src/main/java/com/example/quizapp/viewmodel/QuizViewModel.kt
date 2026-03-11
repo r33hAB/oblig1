@@ -74,6 +74,12 @@ class QuizViewModel(
 
     private fun loadNextQuestion() {
         viewModelScope.launch {
+            val previousBilde = when (val p = _uiState.value.phase) {
+                is QuizPhase.VenterPaaSvar -> p.gjeldendeBilder
+                is QuizPhase.SvarGitt -> p.gjeldendeBilder
+                else -> null
+            }
+
             _uiState.update { it.copy(phase = QuizPhase.Loading) }
 
             val list = repository.getAllAsc().first()
@@ -83,7 +89,13 @@ class QuizViewModel(
                 return@launch
             }
 
-            val riktigBilde = list.random()
+            val candidates = if (previousBilde != null) {
+                list.filter { it.id != previousBilde.id }
+            } else {
+                list
+            }
+            val riktigBilde = (candidates.ifEmpty { list }).random()
+
             val feilSvar = list.filter { it.id != riktigBilde.id }.map { it.navn }.shuffled().take(ANTALL_FEIL_SVAR)
             val alleSvar = (listOf(riktigBilde.navn) + feilSvar).shuffled()
 

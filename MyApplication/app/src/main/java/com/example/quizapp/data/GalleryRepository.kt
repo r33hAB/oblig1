@@ -13,7 +13,7 @@ class GalleryRepository(
     // Leser fra Room og konverterer fra GalleryItemEntity → BildeOppforing
     private fun entityToBildeOppforing(entity: GalleryItemEntity): BildeOppforing {
         return BildeOppforing(
-            id = entity.id.toLong(),
+            id = entity.id,
             navn = entity.name,
             bildeUri = Uri.parse(entity.uri)
         )
@@ -22,7 +22,7 @@ class GalleryRepository(
     // Her lagres det i Room som konverteres fra BildeOppforing → GalleryItemEntity
     private fun bildeOppforingToEntity(item: BildeOppforing): GalleryItemEntity {
         return GalleryItemEntity(
-            id = 0,
+            id = item.id,
             name = item.navn,
             uri = item.bildeUri.toString()
         )
