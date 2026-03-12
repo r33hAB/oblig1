@@ -68,9 +68,7 @@ class QuizApplication : Application() {
         // Konverter hver ressurs til en BildeOppforing
         innebygdeBilder.forEachIndexed { index, (navn, ressursId) ->
             // Formatet er: android.resource://com.example.quizapp/drawable/dyr1
-            val uri = Uri.parse(
-                "android.resource://${packageName}/${ressursId}"
-            )
+            val uri = Uri.parse( "android.resource://${packageName}/${ressursId}" )
 
             // Opprett oppføringen med erInnebygd = true
             val oppforing = BildeOppforing(
