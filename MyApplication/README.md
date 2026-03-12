@@ -105,7 +105,7 @@ students divide the work without replacing the existing Oblig 1 solution.
 ### 3. Data Handling (Victoria)
 
 - [x] Persist gallery metadata in Room
-- [ ] Load stored data on app startup
+- [x] Load stored data on app startup
 - [x] Restore gallery list after app restart
 - [x] Store URI as text value
 - [x] Do not store full image files in Room

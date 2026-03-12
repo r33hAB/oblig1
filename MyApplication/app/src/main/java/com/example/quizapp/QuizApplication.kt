@@ -32,7 +32,10 @@ import androidx.room.Room
 import com.example.quizapp.data.BildeOppforing
 import com.example.quizapp.data.GalleryRepository
 import com.example.quizapp.data.local.AppDatabase
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class QuizApplication : Application() {
 
@@ -52,33 +55,43 @@ class QuizApplication : Application() {
 
     private var nesteId: Long = 1000
 
+    // CoroutineScope for arbeid som skal kjøre i bakgrunnen når appen starter
+    // Vi bruker IO-dispatcher fordi databaseoperasjoner ikke skal kjøres på hovedtråden
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun onCreate() {
         super.onCreate()
-        //lastInnebygdeBilder()
+
+        // Når appen starter, sjekker vi om databasen allerede inneholder bilder.
+        // Hvis tom, legger vi inn de innebygde startbildene én gang.
+        applicationScope.launch {
+            if (database.galleryItemDao().getAllSync().isEmpty()) {
+                lastInnebygdeBilder()
+            }
+        }
     }
 
-    private fun lastInnebygdeBilder() {
-        // Liste over innebygde bilder med navn og ressurs-ID
+    private suspend fun lastInnebygdeBilder() {
+        // Liste over innebygde startbilder som skal finnes i appen fra første oppstart
         val innebygdeBilder = listOf(
-            Pair("Katt", R.drawable.dyr1),
-            Pair("Hund", R.drawable.dyr2),
-            Pair("Kanin", R.drawable.dyr3)
+            "Katt" to R.drawable.dyr1,
+            "Hund" to R.drawable.dyr2,
+            "Kanin" to R.drawable.dyr3
         )
 
-        // Konverter hver ressurs til en BildeOppforing
-        innebygdeBilder.forEachIndexed { index, (navn, ressursId) ->
-            // Formatet er: android.resource://com.example.quizapp/drawable/dyr1
+        // Går gjennom hvert innebygd bilde, lager en resource-URI, og lagrer metadataen i Room-databasen
+        innebygdeBilder.forEach { (navn, ressursId) ->
             val uri = Uri.parse( "android.resource://${packageName}/${ressursId}" )
 
             // Opprett oppføringen med erInnebygd = true
-            val oppforing = BildeOppforing(
-                id = (index + 1).toLong(),  // IDer 1, 2, 3 for innebygde
-                navn = navn,
-                bildeUri = uri,
-                erInnebygd = true
+            galleryRepository.insert(
+                BildeOppforing(
+                    id = 0L,            // 0L brukes fordi Room genererer id automatisk
+                    navn = navn,        // Navnet som vises i galleri og brukes i quiz
+                    bildeUri = uri,     // URI til det innebygde bildet
+                    erInnebygd = true   // Market at dette er et forhåndslastet bilde
+                )
             )
-
-            bildeOppforinger.add(oppforing)
         }
     }
 
