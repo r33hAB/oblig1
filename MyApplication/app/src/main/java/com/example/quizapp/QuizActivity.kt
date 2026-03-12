@@ -57,7 +57,7 @@ import com.example.quizapp.viewmodel.QuizViewModelFactory
 
 class QuizActivity : ComponentActivity() {
 
-    private val viewModel: QuizViewModel by viewModels {
+    internal val viewModel: QuizViewModel by viewModels {
         val app = application as QuizApplication
         QuizViewModelFactory(app.galleryRepository)
     }

@@ -66,6 +66,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -82,7 +83,7 @@ import com.example.quizapp.viewmodel.GalleryViewModelFactory
 class GalleriActivity : ComponentActivity() {
 
     // ViewModel som henter data fra Room view GalleryRepository
-    private val viewModel: GalleryViewModel by viewModels {
+    internal val viewModel: GalleryViewModel by viewModels {
         val app = application as QuizApplication
         GalleryViewModelFactory(app.galleryRepository)
     }
@@ -109,10 +110,14 @@ class GalleriActivity : ComponentActivity() {
         // hvis null, avslutt callbacken
         uri ?: return@registerForActivityResult
         // Ber Android om å "huske" at appen har lesetilgang til denne bilde-urien
-        contentResolver.takePersistableUriPermission(
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (_: SecurityException) {
+            // For resource-URIer eller i test er persistent tilgang ikke mulig
+        }
         // Lagrer den valgte Uri i state.
         ventedeUri = uri
         // Setter state slik at "gi navn"-dialogen vises
@@ -310,7 +315,10 @@ class GalleriActivity : ComponentActivity() {
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(onClick = onSlett) {
+                IconButton(
+                    onClick = onSlett,
+                    modifier = Modifier.testTag("slett_${oppforing.navn}")
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = "Slett"

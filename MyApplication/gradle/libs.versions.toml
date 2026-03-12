@@ -17,8 +17,8 @@ coreKtx = "1.15.0"
 # Testing-biblioteker
 junit = "4.13.2"
 junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-espressoIntents = "3.6.1"
+espressoCore = "3.7.0"
+espressoIntents = "3.7.0"
 
 # UI-biblioteker
 appcompat = "1.7.0"
