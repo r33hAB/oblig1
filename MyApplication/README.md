@@ -70,22 +70,20 @@ students divide the work without replacing the existing Oblig 1 solution.
 
 ### 1. Room Database (Victoria)
 
-- [ ] Create gallery metadata `Entity`
-- [ ] Define primary key
-- [ ] Add fields for image URI
-- [ ] Add fields for title or label if needed
-- [ ] Add timestamp or ordering field if needed
-- [ ] Create DAO interface
-- [ ] Add insert function
-- [ ] Add query-all function
-- [ ] Add query-by-id or URI function if needed
-- [ ] Add delete or replace strategy
-- [ ] Create Room `Database` class
-- [ ] Register entity in database
-- [ ] Expose DAO from database
-- [ ] Create repository
-- [ ] Connect repository to DAO
-- [ ] Keep database access out of activities
+- [x] Create gallery metadata `Entity`
+- [x] Define primary key
+- [x] Add fields for image URI
+- [x] Add fields for title or label if needed
+- [x] Create DAO interface
+- [x] Add insert function
+- [x] Add query-all function
+- [x] Add delete or replace strategy
+- [x] Create Room `Database` class
+- [x] Register entity in database
+- [x] Expose DAO from database
+- [x] Create repository
+- [x] Connect repository to DAO
+- [x] Keep database access out of activities
 
 ### 2. ViewModels (Andreas)
 
@@ -115,17 +113,22 @@ students divide the work without replacing the existing Oblig 1 solution.
 
 ### 4. ContentProvider (Andreas)
 
-- [ ] Create provider class
-- [ ] Define authority constant
-- [ ] Define content URI constant
-- [ ] Define table or path constants
-- [ ] Implement `query()`
-- [ ] Implement `insert()`
-- [ ] Implement `delete()`
-- [ ] Implement `update()` if required
-- [ ] Implement `getType()`
-- [ ] Register provider in `AndroidManifest.xml`
-- [ ] Verify exported settings match assignment needs
+- Terminal kommando for å query alle rader: ```adb shell content query --uri content://com.example.quizapp.provider.gallery/gallery_items```
+- Terminal kommando for å finne en rad med id: ```adb shell content query --uri content://com.example.quizapp.provider.gallery/gallery_items/1```
+- Terminal kommando for å sette inn en rad: ```adb shell content insert --uri content://com.example.quizapp.provider.gallery/gallery_items --bind name:s:"My Photo" --bind URI:s:"content://media/external/images/media/123"```
+- Terminal kommando for å slette en rad: ```adb shell content delete --uri content://com.example.quizapp.provider.gallery/gallery_items/1```
+
+- [x] Create provider class
+- [x] Define authority constant
+- [x] Define content URI constant
+- [x] Define table or path constants
+- [x] Implement `query()`
+- [x] Implement `insert()`
+- [x] Implement `delete()`
+- [x] Implement `update()` if required
+- [x] Implement `getType()`
+- [x] Register provider in `AndroidManifest.xml`
+- [x] Verify exported settings match assignment needs
 
 ### 5. ContentProvider Testing With adb (Kristoffer)
 
