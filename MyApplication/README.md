@@ -104,12 +104,12 @@ students divide the work without replacing the existing Oblig 1 solution.
 
 ### 3. Data Handling (Victoria)
 
-- [ ] Persist gallery metadata in Room
+- [x] Persist gallery metadata in Room
 - [ ] Load stored data on app startup
-- [ ] Restore gallery list after app restart
-- [ ] Store URI as text value
-- [ ] Do not store full image files in Room
-- [ ] Keep URI handling consistent in repository and ViewModel
+- [x] Restore gallery list after app restart
+- [x] Store URI as text value
+- [x] Do not store full image files in Room
+- [x] Keep URI handling consistent in repository and ViewModel
 
 ### 4. ContentProvider (Andreas)
 
