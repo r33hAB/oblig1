@@ -132,18 +132,103 @@ Our `QuizTest.kt` does the same thing reads `phase.gjeldendeBilder.navn` from th
 
 ## 2c) ContentProvider
 
+Do the returned URIs correspond to the URI of the content provider, or does it return URIs that do not begin with the authority of the provider?
+
 ### Their solution
 
-`QuizProvider.kt` is registered with authority `com.example.quiz_app.provider`. It only matches one URI: `content://com.example.quiz_app.provider/quiz_items`.
-
-The `query()` method (line 44-51) runs a hardcoded SQL string:
-
+`QuizProvider.kt` is registered with authority `com.example.quiz_app.provider. The `uri` column returned by the query is **not** a content URI belonging to the provider. The SQL query is: 
 ```kotlin
 val cursor = database.query("SELECT name, uri AS URI FROM quiz_items", null)
 ```
 
-It returns two columns: `name` and `URI` (aliased from `uri`). The provider is read-only `insert()`, `update()`, and `delete()` all throw `UnsupportedOperationException`.
+When we test the adb output using the command `adb shell content query --uri content://com.example.quiz_app.provider/quiz_items` we get the following response which confirms the two distinct URI schemas, neither of which belongs to `com.example.quiz_app.provider`:
+```
+Row: 0 name=Jupiter, URI=android.resource://com.example.quiz_app/2131165280
+Row: 1 name=Mars, URI=android.resource://com.example.quiz_app/2131165281
+Row: 2 name=Venus, URI=android.resource://com.example.quiz_app/2131165299
+Row: 3 name=Uranus, URI=android.resource://com.example.quiz_app/2131165298
+Row: 4 name=Earth, URI=content://com.android.providers.media.documents/document/image%3A25
+```
 
+**Rows 0-3** points directly into the app's compiled drawable resources by resource ID. The authority here is `com.example.quiz_app`, not the content provider's authroity.
+**Row 4** is issued by the Android MediaStore provider, so its authority is `com.andoid.providers.media.documents`.
 
+### Our solution
 
+`GalleryContentProvider.kt` is registered with authority `com.example.quizapp.provider.gallery`. The URI column returned by the query is **not** a content URI belonging to the provider. It is read directly from the `uri` field stored in the `GalleryItemEntity` and populated into a `MatrixCursor`.
+```kotlin
+cursor.addRow(arrayOf(entity.id, entity.name, entity.uri))
+```
+
+When we test using `adb shell content query --uri content://com.example.quizapp.provider.gallery/gallery_items` we get the following response, which also confirms two distinct URI schemas, neither of which belongs to `com.example.quizapp.provider.gallery`:
+```
+Row: 0 _id=2, name=Hund, URI=android.resource://com.example.quizapp/2131165320
+Row: 1 _id=3, name=Kanin, URI=android.resource://com.example.quizapp/2131165321
+Row: 2 _id=1, name=Katt, URI=android.resource://com.example.quizapp/2131165319
+Row: 3 _id=4, name=Goat, URI=content://com.android.providers.media.documents/document/image%3A21
+```
+
+**Rows 0-2** points direcly into the app's compiled drawable resources by resource ID. The authority is `com.example.quizapp`, not the content provider's authority.
+**Row 3** was issued by the Android MediaStore document provider, so its authority is `com.android.providers.media.documents`.
+
+In both cases, the URIs are resolvable, but **through other authorities**, not through the provider. A consumer of this provider must therefore be prepared to handle multiple URI schemas and delegate resolution to the appropriate system.
+
+---
+
+Does the provider implement the mandatory columns?
+
+### Their solution
+
+`QuizProvider.kt` exposes only two columns: `name` and `URI`. Neither matches the mandatory columns `_display_name` and `_size` defined by `OpenableColumns`.
+
+The provider is therefore **not compliant** with `OpenableColumns`. Any consumer querying for `_display_name` or `_size` will find neither column, and the exposed URIs cannot be treated as openable URIs in the Android sense.
+
+### Our solution
+
+Our solution has a similar approach. `GalleryContentProvider.kt` exposes three columns: `_id`, `name`, and `URI`. Neither matches the mandatory columns defined by `OpenableColumns`. 
+
+Our provider is therefore **not compliant** with `OpenableColumns`. Any consumer querying for `_display_name` or `_size` will find neither column, and the exposed URIs cannot be treated as openable URIs in the Android sense.
+
+---
+
+Test the content provider from the command like with adb.
+
+### Their solution
+The `--projection` flag is ignored because the provider uses a hardcoded SQL string:
+
+```kotlin
+database.query("SELECT name, uri AS URI FROM quiz_items", null)
+```
+
+The `projection` parameter passed to `query()` is never read. Both columns are always selected unconditionally, so the cursor always returns `name` and `URI` regardless of what the caller requested.
+
+When using the `--where` flag we get the same result, which still return all rows. This is because the `selection` parameter is never read by the provider, the hardcoded SQL string ignores it entirely.
+
+### Our solution
+While running the adb command with `--projection` flag in our content provider, we get an error.
+```
+Error while accessing provider:com.example.quizapp.provider.gallery
+java.lang.IllegalArgumentException: columnNames.length = 1, columnValues.length = 3
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:207)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:177)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at com.android.commands.content.Content$QueryCommand.onExecute(Content.java:661)
+	at com.android.commands.content.Content$Command.execute(Content.java:522)
+	at com.android.commands.content.Content.main(Content.java:735)
+	at com.android.internal.os.RuntimeInit.nativeFinishInit(Native Method)
+	at com.android.internal.os.RuntimeInit.main(RuntimeInit.java:366)
+```
+
+The error occurs because the provider respects the `--projection` flag, creating a `MatrixCursor` with only the one requested column (`name`), but then unconditionally calls:
+
+```kotlin
+cursor.addRow(arrayOf(entity.id, entity.name, entity.uri))
+```
+Which always passes 3 values regardless of the projection, causing the `IllegalArgumentException` mismatch between `columnNames.length = 1` and `columnValues.length = 3`. The fix is to only include values in `addRow()` that correspond to the columns actually present in the projected cursor.
+
+In our application when we test with `--where` flag, we get the same result as the other group. The `selection` and `selectionArgs` parameters passed to `query()` are never used. This fetches all rows unconditionally, so the `--where` filter is silently ignored and all rows are returned regardless. However in this case, the application does not crash.
+
+---
+
+## Additional comment
 Their code is in English, ours is in Norwegian. For group projects where others might need to read the code, English is the better choice.
